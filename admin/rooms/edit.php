@@ -17,7 +17,11 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $id = (int) $_GET['id'];
 
-$stmt = mysqli_prepare($conn, "SELECT * FROM rooms WHERE id = ?");
+$stmt = mysqli_prepare(
+    $conn,
+    "SELECT * FROM rooms WHERE id = ?"
+);
+
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
 
@@ -70,8 +74,13 @@ if (isset($_POST['update'])) {
         $stmt = mysqli_prepare(
             $conn,
             "UPDATE rooms
-             SET nama = ?, harga = ?, kapasitas = ?, foto = ?, deskripsi = ?
-             WHERE id = ?"
+            SET
+                nama = ?,
+                harga = ?,
+                kapasitas = ?,
+                foto = ?,
+                deskripsi = ?
+            WHERE id = ?"
         );
 
         mysqli_stmt_bind_param(
@@ -85,11 +94,19 @@ if (isset($_POST['update'])) {
             $id
         );
 
-        mysqli_stmt_execute($stmt);
+        if (mysqli_stmt_execute($stmt)) {
+
+            header("Location: index.php");
+            exit;
+
+        } else {
+
+            $error = "Gagal memperbarui data.";
+
+        }
+
         mysqli_stmt_close($stmt);
 
-        header("Location: index.php");
-        exit;
     }
 
 }
@@ -103,27 +120,97 @@ if (isset($_POST['update'])) {
 
 <meta charset="UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Edit Kamar</title>
+
+<link rel="stylesheet" href="../../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<h1>Edit Kamar</h1>
+<div class="wrapper">
 
-<?php if (!empty($error)) : ?>
+<div class="sidebar">
 
-<p style="color:red;">
-    <?= $error; ?>
+<h2>Hotel Admin</h2>
+
+<ul>
+
+<li>
+
+<a href="../dashboard.php">
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="index.php">
+
+Kelola Kamar
+
+</a>
+
+</li>
+
+<li>
+
+<a href="../bookings/index.php">
+
+Kelola Reservasi
+
+</a>
+
+</li>
+
+<li>
+
+<a href="../../logout.php">
+
+Logout
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+<div class="content">
+
+<h1 class="page-title">
+
+Edit Kamar
+
+</h1>
+
+<div class="form-card">
+
+<?php if (!empty($error)): ?>
+
+<p style="color:red;margin-bottom:20px;">
+
+<?= htmlspecialchars($error); ?>
+
 </p>
 
 <?php endif; ?>
 
-<form method="POST" enctype="multipart/form-data">
+<form
+method="POST"
+enctype="multipart/form-data">
 
-<label>Nama Kamar</label>
+<label>
 
-<br>
+Nama Kamar
+
+</label>
 
 <input
 type="text"
@@ -131,80 +218,93 @@ name="nama"
 value="<?= htmlspecialchars($room['nama']); ?>"
 required>
 
-<br><br>
+<label>
 
-<label>Harga</label>
+Harga
 
-<br>
+</label>
 
 <input
 type="number"
 name="harga"
 value="<?= $room['harga']; ?>"
+min="0"
 required>
 
-<br><br>
+<label>
 
-<label>Kapasitas</label>
+Kapasitas
 
-<br>
+</label>
 
 <input
 type="number"
 name="kapasitas"
 value="<?= $room['kapasitas']; ?>"
+min="1"
 required>
 
-<br><br>
+<label>
 
-<label>Foto Saat Ini</label>
+Foto Saat Ini
+
+</label>
 
 <br><br>
 
 <img
-src="../../uploads/<?= $room['foto']; ?>"
-width="180">
+src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
+class="room-image"
+alt="<?= htmlspecialchars($room['nama']); ?>">
 
 <br><br>
 
-<label>Ganti Foto</label>
+<label>
 
-<br>
+Ganti Foto
+
+</label>
 
 <input
 type="file"
 name="foto"
 accept=".jpg,.jpeg,.png,.webp">
 
-<br><br>
+<label>
 
-<label>Deskripsi</label>
+Deskripsi
 
-<br>
+</label>
 
 <textarea
 name="deskripsi"
 rows="6"
-cols="60"
 required><?= htmlspecialchars($room['deskripsi']); ?></textarea>
-
-<br><br>
 
 <button
 type="submit"
-name="update">
+name="update"
+class="btn">
 
 Update
 
 </button>
 
-<a href="index.php">
+<a
+href="index.php"
+class="btn btn-danger">
 
-Kembali
+Batal
 
 </a>
 
 </form>
+
+</div>
+
+</div>
+
+</div>
 
 </body>
 

@@ -11,7 +11,7 @@ require_once "../../config/koneksi.php";
 
 if (isset($_POST['update_status'])) {
 
-    $id = (int) $_POST['booking_id'];
+    $bookingId = (int) $_POST['booking_id'];
     $status = $_POST['status'];
 
     $allowedStatus = ["Pending", "Diterima", "Ditolak"];
@@ -29,7 +29,7 @@ if (isset($_POST['update_status'])) {
             $stmt,
             "si",
             $status,
-            $id
+            $bookingId
         );
 
         mysqli_stmt_execute($stmt);
@@ -64,69 +64,79 @@ $result = mysqli_query($conn, $query);
 
 <meta charset="UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Kelola Reservasi</title>
 
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,Helvetica,sans-serif;
-}
-
-body{
-    background:#f5f5f5;
-    padding:40px;
-}
-
-.container{
-    max-width:1300px;
-    margin:auto;
-}
-
-h1{
-    margin-bottom:25px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:#fff;
-}
-
-th,
-td{
-    border:1px solid #ddd;
-    padding:12px;
-    text-align:center;
-}
-
-th{
-    background:#2563eb;
-    color:white;
-}
-
-select{
-    padding:6px;
-}
-
-button{
-    padding:6px 14px;
-    cursor:pointer;
-}
-
-</style>
+<link rel="stylesheet" href="../../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="wrapper">
+
+<div class="sidebar">
+
+<h2>Hotel Admin</h2>
+
+<ul>
+
+<li>
+
+<a href="../dashboard.php">
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="../rooms/index.php">
+
+Kelola Kamar
+
+</a>
+
+</li>
+
+<li>
+
+<a href="index.php">
+
+Kelola Reservasi
+
+</a>
+
+</li>
+
+<li>
+
+<a href="../../logout.php">
+
+Logout
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+<div class="content">
+
+<div class="header-action">
 
 <h1>Kelola Reservasi</h1>
 
+</div>
+
 <table>
+
+<thead>
 
 <tr>
 
@@ -148,27 +158,83 @@ button{
 
 </tr>
 
-<?php if(mysqli_num_rows($result) > 0): ?>
+</thead>
+
+<tbody>
+
+<?php if (mysqli_num_rows($result) > 0): ?>
 
 <?php $no = 1; ?>
 
-<?php while($booking = mysqli_fetch_assoc($result)): ?>
+<?php while ($booking = mysqli_fetch_assoc($result)): ?>
 
 <tr>
 
-<td><?= $no++; ?></td>
+<td>
 
-<td><?= htmlspecialchars($booking['nama']); ?></td>
+<?= $no++; ?>
 
-<td><?= htmlspecialchars($booking['no_hp']); ?></td>
+</td>
 
-<td><?= htmlspecialchars($booking['room_name']); ?></td>
+<td>
 
-<td><?= $booking['check_in']; ?></td>
+<?= htmlspecialchars($booking['nama']); ?>
 
-<td><?= $booking['check_out']; ?></td>
+</td>
 
-<td><?= $booking['status']; ?></td>
+<td>
+
+<?= htmlspecialchars($booking['no_hp']); ?>
+
+</td>
+
+<td>
+
+<?= htmlspecialchars($booking['room_name']); ?>
+
+</td>
+
+<td>
+
+<?= htmlspecialchars($booking['check_in']); ?>
+
+</td>
+
+<td>
+
+<?= htmlspecialchars($booking['check_out']); ?>
+
+</td>
+
+<td>
+
+<?php
+
+$class = "";
+
+if ($booking['status'] == "Pending") {
+
+    $class = "pending";
+
+} elseif ($booking['status'] == "Diterima") {
+
+    $class = "accept";
+
+} else {
+
+    $class = "reject";
+
+}
+
+?>
+
+<span class="badge <?= $class; ?>">
+
+<?= htmlspecialchars($booking['status']); ?>
+
+</span>
+
+</td>
 
 <td>
 
@@ -183,7 +249,7 @@ value="<?= $booking['id']; ?>">
 
 <option
 value="Pending"
-<?= $booking['status']=="Pending" ? "selected" : ""; ?>>
+<?= $booking['status'] == "Pending" ? "selected" : ""; ?>>
 
 Pending
 
@@ -191,7 +257,7 @@ Pending
 
 <option
 value="Diterima"
-<?= $booking['status']=="Diterima" ? "selected" : ""; ?>>
+<?= $booking['status'] == "Diterima" ? "selected" : ""; ?>>
 
 Diterima
 
@@ -199,7 +265,7 @@ Diterima
 
 <option
 value="Ditolak"
-<?= $booking['status']=="Ditolak" ? "selected" : ""; ?>>
+<?= $booking['status'] == "Ditolak" ? "selected" : ""; ?>>
 
 Ditolak
 
@@ -209,7 +275,8 @@ Ditolak
 
 <button
 type="submit"
-name="update_status">
+name="update_status"
+class="btn">
 
 Update
 
@@ -237,7 +304,11 @@ Belum ada reservasi.
 
 <?php endif; ?>
 
+</tbody>
+
 </table>
+
+</div>
 
 </div>
 

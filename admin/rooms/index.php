@@ -21,215 +21,201 @@ $result = mysqli_query($conn, $query);
 
     <meta charset="UTF-8">
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Kelola Kamar</title>
 
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial, Helvetica, sans-serif;
-        }
-
-        body{
-            background:#f5f5f5;
-            padding:40px;
-        }
-
-        .container{
-            max-width:1200px;
-            margin:auto;
-        }
-
-        h1{
-            margin-bottom:25px;
-        }
-
-        .btn{
-            display:inline-block;
-            text-decoration:none;
-            padding:10px 18px;
-            background:#2563eb;
-            color:white;
-            border-radius:6px;
-            margin-bottom:20px;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-            background:white;
-        }
-
-        th,
-        td{
-            border:1px solid #ddd;
-            padding:12px;
-            text-align:center;
-        }
-
-        th{
-            background:#2563eb;
-            color:white;
-        }
-
-        img{
-            width:120px;
-            height:80px;
-            object-fit:cover;
-            border-radius:6px;
-        }
-
-        .edit{
-            color:#2563eb;
-            text-decoration:none;
-            font-weight:bold;
-        }
-
-        .delete{
-            color:red;
-            text-decoration:none;
-            font-weight:bold;
-        }
-
-        .empty{
-            text-align:center;
-            padding:30px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="../../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="wrapper">
 
-    <h1>Kelola Kamar</h1>
+    <div class="sidebar">
 
-    <a
-        href="create.php"
-        class="btn">
+        <h2>Hotel Admin</h2>
 
-        + Tambah Kamar
+        <ul>
 
-    </a>
+            <li>
 
-    <table>
+                <a href="../dashboard.php">
 
-        <thead>
+                    Dashboard
 
-        <tr>
+                </a>
 
-            <th>No</th>
+            </li>
 
-            <th>Foto</th>
+            <li>
 
-            <th>Nama</th>
+                <a href="index.php">
 
-            <th>Harga</th>
+                    Kelola Kamar
 
-            <th>Kapasitas</th>
+                </a>
 
-            <th>Aksi</th>
+            </li>
 
-        </tr>
+            <li>
 
-        </thead>
+                <a href="../bookings/index.php">
 
-        <tbody>
+                    Kelola Reservasi
 
-        <?php if(mysqli_num_rows($result) > 0): ?>
+                </a>
 
-            <?php $no = 1; ?>
+            </li>
 
-            <?php while($room = mysqli_fetch_assoc($result)): ?>
+            <li>
+
+                <a href="../../logout.php">
+
+                    Logout
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+    <div class="content">
+
+        <div class="header-action">
+
+            <h1>Kelola Kamar</h1>
+
+            <a
+                href="create.php"
+                class="btn">
+
+                + Tambah Kamar
+
+            </a>
+
+        </div>
+
+        <table>
+
+            <thead>
 
                 <tr>
 
-                    <td><?= $no++; ?></td>
+                    <th>No</th>
 
-                    <td>
+                    <th>Foto</th>
 
-                        <?php if(!empty($room['foto'])): ?>
+                    <th>Nama</th>
 
-                            <img
-                                src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
-                                alt="<?= htmlspecialchars($room['nama']); ?>">
+                    <th>Harga</th>
 
-                        <?php else: ?>
+                    <th>Kapasitas</th>
 
-                            -
-
-                        <?php endif; ?>
-
-                    </td>
-
-                    <td>
-
-                        <?= htmlspecialchars($room['nama']); ?>
-
-                    </td>
-
-                    <td>
-
-                        Rp <?= number_format($room['harga'],0,',','.'); ?>
-
-                    </td>
-
-                    <td>
-
-                        <?= $room['kapasitas']; ?> Orang
-
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="edit.php?id=<?= $room['id']; ?>"
-                            class="edit">
-
-                            Edit
-
-                        </a>
-
-                        |
-
-                        <a
-                            href="delete.php?id=<?= $room['id']; ?>"
-                            class="delete"
-                            onclick="return confirm('Yakin ingin menghapus kamar ini?')">
-
-                            Hapus
-
-                        </a>
-
-                    </td>
+                    <th>Aksi</th>
 
                 </tr>
 
-            <?php endwhile; ?>
+            </thead>
 
-        <?php else: ?>
+            <tbody>
 
-            <tr>
+                <?php if (mysqli_num_rows($result) > 0): ?>
 
-                <td
-                    colspan="6"
-                    class="empty">
+                    <?php $no = 1; ?>
 
-                    Belum ada data kamar.
+                    <?php while ($room = mysqli_fetch_assoc($result)): ?>
 
-                </td>
+                        <tr>
 
-            </tr>
+                            <td>
 
-        <?php endif; ?>
+                                <?= $no++; ?>
 
-        </tbody>
+                            </td>
 
-    </table>
+                            <td>
+
+                                <?php if (!empty($room['foto'])): ?>
+
+                                    <img
+                                        src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
+                                        alt="<?= htmlspecialchars($room['nama']); ?>"
+                                        class="room-image">
+
+                                <?php else: ?>
+
+                                    -
+
+                                <?php endif; ?>
+
+                            </td>
+
+                            <td>
+
+                                <?= htmlspecialchars($room['nama']); ?>
+
+                            </td>
+
+                            <td>
+
+                                Rp <?= number_format($room['harga'], 0, ",", "."); ?>
+
+                            </td>
+
+                            <td>
+
+                                <?= $room['kapasitas']; ?> Orang
+
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="edit.php?id=<?= $room['id']; ?>"
+                                    class="btn">
+
+                                    Edit
+
+                                </a>
+
+                                <a
+                                    href="delete.php?id=<?= $room['id']; ?>"
+                                    class="btn btn-danger"
+                                    onclick="return confirm('Yakin ingin menghapus kamar ini?')">
+
+                                    Hapus
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endwhile; ?>
+
+                <?php else: ?>
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            Belum ada data kamar.
+
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
 
