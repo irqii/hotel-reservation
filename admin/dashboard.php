@@ -2,39 +2,84 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] != 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
 }
 
-include "../config/koneksi.php";
+require_once "../config/koneksi.php";
 
-$totalRooms = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM rooms"));
-$totalBookings = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM bookings"));
+$totalRooms = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM rooms"));
+
+$totalBookings = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM bookings"));
 
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin</title>
+
+<meta charset="UTF-8">
+
+<title>Dashboard Admin</title>
+
 </head>
+
 <body>
 
 <h1>Dashboard Admin</h1>
 
-<p>Selamat datang, <b><?= $_SESSION['nama']; ?></b></p>
-
 <hr>
 
-<p>Total Kamar : <?= $totalRooms; ?></p>
-<p>Total Reservasi : <?= $totalBookings; ?></p>
+<p>
 
-<hr>
+Selamat Datang,
 
-<a href="rooms/index.php">Kelola Kamar</a> |
-<a href="../logout.php">Logout</a>
+<b><?= htmlspecialchars($_SESSION['nama']); ?></b>
+
+</p>
+
+<br>
+
+<p>
+
+Total Kamar :
+<b><?= $totalRooms; ?></b>
+
+</p>
+
+<p>
+
+Total Reservasi :
+<b><?= $totalBookings; ?></b>
+
+</p>
+
+<br>
+
+<a href="rooms/index.php">
+
+Kelola Kamar
+
+</a>
+
+|
+
+<a href="bookings/index.php">
+
+Kelola Reservasi
+
+</a>
+
+|
+
+<a href="../logout.php">
+
+Logout
+
+</a>
 
 </body>
+
 </html>

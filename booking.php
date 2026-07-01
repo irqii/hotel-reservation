@@ -34,6 +34,8 @@ $error = "";
 
 if (isset($_POST['booking'])) {
 
+    $nama = trim($_POST['nama']);
+    $noHp = trim($_POST['no_hp']);
     $checkIn = $_POST['check_in'];
     $checkOut = $_POST['check_out'];
 
@@ -47,15 +49,18 @@ if (isset($_POST['booking'])) {
 
         $stmt = mysqli_prepare(
             $conn,
-            "INSERT INTO bookings (user_id, room_id, check_in, check_out, status)
-            VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO bookings
+            (user_id, room_id, nama, no_hp, check_in, check_out, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
 
         mysqli_stmt_bind_param(
             $stmt,
-            "iisss",
+            "iisssss",
             $_SESSION['id'],
             $roomId,
+            $nama,
+            $noHp,
             $checkIn,
             $checkOut,
             $status
@@ -83,7 +88,7 @@ if (isset($_POST['booking'])) {
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Reservasi</title>
+<title>Reservasi Kamar</title>
 
 <link rel="stylesheet" href="assets/css/style.css">
 
@@ -133,7 +138,7 @@ Rp <?= number_format($room['harga'],0,",","."); ?> / malam
 
 <br>
 
-<?php if(!empty($error)): ?>
+<?php if (!empty($error)) : ?>
 
 <p style="color:red;">
 
@@ -146,6 +151,28 @@ Rp <?= number_format($room['harga'],0,",","."); ?> / malam
 <?php endif; ?>
 
 <form method="POST">
+
+<label>Nama</label>
+
+<br>
+
+<input
+type="text"
+name="nama"
+required>
+
+<br><br>
+
+<label>Nomor HP</label>
+
+<br>
+
+<input
+type="text"
+name="no_hp"
+required>
+
+<br><br>
 
 <label>Check In</label>
 
