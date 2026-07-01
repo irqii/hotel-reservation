@@ -22,7 +22,12 @@ if (isset($_POST['login'])) {
             $_SESSION['nama'] = $user['nama'];
             $_SESSION['role'] = $user['role'];
 
-            header("Location: index.php");
+            if ($user['role'] == 'admin') {
+                header("Location: admin/dashboard.php");
+            } else {
+                header("Location: index.php");
+            }
+            exit;
             exit;
 
         } else {
