@@ -2,62 +2,172 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] != 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../../login.php");
     exit;
 }
 
-include "../../config/koneksi.php";
+require_once "../../config/koneksi.php";
+require_once "../../helpers/upload.php";
+
+$error = "";
+$success = "";
 
 if (isset($_POST['simpan'])) {
 
-    $nama = $_POST['nama'];
-    $harga = $_POST['harga'];
-    $kapasitas = $_POST['kapasitas'];
-    $deskripsi = $_POST['deskripsi'];
+    $nama = trim($_POST['nama']);
+    $harga = trim($_POST['harga']);
+    $kapasitas = trim($_POST['kapasitas']);
+    $deskripsi = trim($_POST['deskripsi']);
 
-    mysqli_query($conn, "
-        INSERT INTO rooms(nama,harga,kapasitas,deskripsi)
-        VALUES('$nama','$harga','$kapasitas','$deskripsi')
-    ");
+    $upload = uploadImage("foto");
 
-    header("Location: index.php");
-    exit;
+    if (!$upload["status"]) {
+
+        $error = $upload["message"];
+
+    } else {
+
+        $foto = $upload["file_name"];
+
+        $stmt = mysqli_prepare(
+            $conn,
+            "INSERT INTO rooms (nama, harga, kapasitas, foto, deskripsi)
+             VALUES (?, ?, ?, ?, ?)"
+        );
+
+        mysqli_stmt_bind_param(
+            $stmt,
+            "siiss",
+            $nama,
+            $harga,
+            $kapasitas,
+            $foto,
+            $deskripsi
+        );
+
+        if (mysqli_stmt_execute($stmt)) {
+
+            header("Location: index.php");
+            exit;
+
+        } else {
+
+            $error = "Gagal menambahkan kamar.";
+
+        }
+
+        mysqli_stmt_close($stmt);
+
+    }
+
 }
 
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<title>Tambah Kamar</title>
+
+    <meta charset="UTF-8">
+
+    <title>Tambah Kamar</title>
+
 </head>
+
 <body>
 
 <h1>Tambah Kamar</h1>
 
-<form method="POST">
+<?php if (!empty($error)) : ?>
 
-Nama<br>
-<input type="text" name="nama" required><br><br>
+    <p style="color:red;">
+        <?= $error; ?>
+    </p>
 
-Harga<br>
-<input type="number" name="harga" required><br><br>
+<?php endif; ?>
 
-Kapasitas<br>
-<input type="number" name="kapasitas" required><br><br>
+<form method="POST" enctype="multipart/form-data">
 
-Deskripsi<br>
-<textarea name="deskripsi"></textarea><br><br>
+    <label>Nama Kamar</label>
 
-<button name="simpan">
+    <br>
 
-Simpan
+    <input
+        type="text"
+        name="nama"
+        required
+    >
 
-</button>
+    <br><br>
+
+    <label>Harga</label>
+
+    <br>
+
+    <input
+        type="number"
+        name="harga"
+        min="0"
+        required
+    >
+
+    <br><br>
+
+    <label>Kapasitas</label>
+
+    <br>
+
+    <input
+        type="number"
+        name="kapasitas"
+        min="1"
+        required
+    >
+
+    <br><br>
+
+    <label>Foto</label>
+
+    <br>
+
+    <input
+        type="file"
+        name="foto"
+        accept=".jpg,.jpeg,.png,.webp"
+        required
+    >
+
+    <br><br>
+
+    <label>Deskripsi</label>
+
+    <br>
+
+    <textarea
+        name="deskripsi"
+        rows="6"
+        cols="60"
+        required
+    ></textarea>
+
+    <br><br>
+
+    <button type="submit" name="simpan">
+
+        Simpan
+
+    </button>
+
+    <a href="index.php">
+
+        Kembali
+
+    </a>
 
 </form>
 
 </body>
+
 </html>

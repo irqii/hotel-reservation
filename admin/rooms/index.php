@@ -2,78 +2,236 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] != 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../../login.php");
     exit;
 }
 
-include "../../config/koneksi.php";
+require_once "../../config/koneksi.php";
 
-$rooms = mysqli_query($conn, "SELECT * FROM rooms");
+$query = "SELECT * FROM rooms ORDER BY id DESC";
+$result = mysqli_query($conn, $query);
 
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
+
     <title>Kelola Kamar</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            background:#f5f5f5;
+            padding:40px;
+        }
+
+        .container{
+            max-width:1200px;
+            margin:auto;
+        }
+
+        h1{
+            margin-bottom:25px;
+        }
+
+        .btn{
+            display:inline-block;
+            text-decoration:none;
+            padding:10px 18px;
+            background:#2563eb;
+            color:white;
+            border-radius:6px;
+            margin-bottom:20px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+        }
+
+        th,
+        td{
+            border:1px solid #ddd;
+            padding:12px;
+            text-align:center;
+        }
+
+        th{
+            background:#2563eb;
+            color:white;
+        }
+
+        img{
+            width:120px;
+            height:80px;
+            object-fit:cover;
+            border-radius:6px;
+        }
+
+        .edit{
+            color:#2563eb;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .delete{
+            color:red;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .empty{
+            text-align:center;
+            padding:30px;
+        }
+
+    </style>
+
 </head>
+
 <body>
 
-<h1>Kelola Kamar</h1>
+<div class="container">
 
-<a href="create.php">+ Tambah Kamar</a>
+    <h1>Kelola Kamar</h1>
 
-<br><br>
+    <a
+        href="create.php"
+        class="btn">
 
-<table border="1" cellpadding="10">
+        + Tambah Kamar
 
-<tr>
-    <th>No</th>
-    <th>Nama</th>
-    <th>Harga</th>
-    <th>Kapasitas</th>
-    <th>Aksi</th>
-</tr>
+    </a>
 
-<?php
+    <table>
 
-$no = 1;
+        <thead>
 
-while ($room = mysqli_fetch_assoc($rooms)) :
+        <tr>
 
-?>
+            <th>No</th>
 
-<tr>
+            <th>Foto</th>
 
-<td><?= $no++; ?></td>
+            <th>Nama</th>
 
-<td><?= $room['nama']; ?></td>
+            <th>Harga</th>
 
-<td>Rp <?= number_format($room['harga']); ?></td>
+            <th>Kapasitas</th>
 
-<td><?= $room['kapasitas']; ?> Orang</td>
+            <th>Aksi</th>
 
-<td>
+        </tr>
 
-<a href="edit.php?id=<?= $room['id']; ?>">Edit</a>
+        </thead>
 
-|
+        <tbody>
 
-<a href="delete.php?id=<?= $room['id']; ?>" onclick="return confirm('Hapus kamar?')">
+        <?php if(mysqli_num_rows($result) > 0): ?>
 
-Hapus
+            <?php $no = 1; ?>
 
-</a>
+            <?php while($room = mysqli_fetch_assoc($result)): ?>
 
-</td>
+                <tr>
 
-</tr>
+                    <td><?= $no++; ?></td>
 
-<?php endwhile; ?>
+                    <td>
 
-</table>
+                        <?php if(!empty($room['foto'])): ?>
+
+                            <img
+                                src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
+                                alt="<?= htmlspecialchars($room['nama']); ?>">
+
+                        <?php else: ?>
+
+                            -
+
+                        <?php endif; ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= htmlspecialchars($room['nama']); ?>
+
+                    </td>
+
+                    <td>
+
+                        Rp <?= number_format($room['harga'],0,',','.'); ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= $room['kapasitas']; ?> Orang
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="edit.php?id=<?= $room['id']; ?>"
+                            class="edit">
+
+                            Edit
+
+                        </a>
+
+                        |
+
+                        <a
+                            href="delete.php?id=<?= $room['id']; ?>"
+                            class="delete"
+                            onclick="return confirm('Yakin ingin menghapus kamar ini?')">
+
+                            Hapus
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            <?php endwhile; ?>
+
+        <?php else: ?>
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="empty">
+
+                    Belum ada data kamar.
+
+                </td>
+
+            </tr>
+
+        <?php endif; ?>
+
+        </tbody>
+
+    </table>
+
+</div>
 
 </body>
 
