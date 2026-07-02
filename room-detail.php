@@ -2,16 +2,13 @@
 
 session_start();
 
-if (!isset($_SESSION['id'])) {
-    header("Location: login.php");
-    exit;
-}
-
 require_once "config/koneksi.php";
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+
     header("Location: rooms.php");
     exit;
+
 }
 
 $id = (int) $_GET['id'];
@@ -21,7 +18,11 @@ $stmt = mysqli_prepare(
     "SELECT * FROM rooms WHERE id = ?"
 );
 
-mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_bind_param(
+    $stmt,
+    "i",
+    $id
+);
 
 mysqli_stmt_execute($stmt);
 
@@ -32,24 +33,27 @@ $room = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
 if (!$room) {
+
     header("Location: rooms.php");
     exit;
+
 }
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title><?= htmlspecialchars($room['nama']); ?></title>
+<title><?= htmlspecialchars($room['nama']); ?></title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css">
 
 </head>
 
@@ -57,90 +61,161 @@ if (!$room) {
 
 <nav>
 
-    <div class="container">
+<div class="container">
 
-        <div class="logo">
+<div class="logo">
 
-            Hotel Reservation
+Hotel Reservation
 
-        </div>
+</div>
 
-        <div class="menu">
+<div class="menu">
 
-            <a href="index.php">Home</a>
+<a href="index.php">
 
-            <a href="rooms.php">Kamar</a>
+Home
 
-            <a href="logout.php">Logout</a>
+</a>
 
-        </div>
+<a href="rooms.php">
 
-    </div>
+Kamar
+
+</a>
+
+<?php if(isset($_SESSION['id'])): ?>
+
+<a href="logout.php">
+
+Logout
+
+</a>
+
+<?php else: ?>
+
+<a href="login.php">
+
+Login
+
+</a>
+
+<a href="register.php">
+
+Register
+
+</a>
+
+<?php endif; ?>
+
+</div>
+
+</div>
 
 </nav>
 
 <section class="section">
 
-    <div class="container">
+<div class="container">
 
-        <img
-            src="uploads/<?= htmlspecialchars($room['foto']); ?>"
-            alt="<?= htmlspecialchars($room['nama']); ?>"
-            style="width:100%;max-width:700px;border-radius:10px;">
+<div class="detail-content">
 
-        <br><br>
+<img
+src="uploads/<?= htmlspecialchars($room['foto']); ?>"
+class="detail-image"
+alt="<?= htmlspecialchars($room['nama']); ?>">
 
-        <h2>
+<h2>
 
-            <?= htmlspecialchars($room['nama']); ?>
+<?= htmlspecialchars($room['nama']); ?>
 
-        </h2>
+</h2>
 
-        <br>
+<br>
 
-        <p>
+<p>
 
-            <strong>Harga :</strong>
+<strong>Harga :</strong>
 
-            Rp <?= number_format($room['harga'], 0, ',', '.'); ?>
+Rp <?= number_format($room['harga'],0,",","."); ?>
 
-            / malam
+/ malam
 
-        </p>
+</p>
 
-        <br>
+<br>
 
-        <p>
+<p>
 
-            <strong>Kapasitas :</strong>
+<strong>Kapasitas :</strong>
 
-            <?= $room['kapasitas']; ?>
+<?= $room['kapasitas']; ?>
 
-            Orang
+Orang
 
-        </p>
+</p>
 
-        <br>
+<br>
 
-        <p>
+<p>
 
-            <?= nl2br(htmlspecialchars($room['deskripsi'])); ?>
+<strong>Deskripsi</strong>
 
-        </p>
+</p>
 
-        <br><br>
+<br>
 
-        <a
-            href="booking.php?room_id=<?= $room['id']; ?>"
-            class="btn">
+<p>
 
-            Reservasi Sekarang
+<?= nl2br(htmlspecialchars($room['deskripsi'])); ?>
 
-        </a>
+</p>
 
-    </div>
+<br><br>
+
+<?php if(isset($_SESSION['id'])): ?>
+
+<a
+href="booking.php?id=<?= $room['id']; ?>"
+class="btn">
+
+Reservasi Sekarang
+
+</a>
+
+<?php else: ?>
+
+<a
+href="login.php"
+class="btn">
+
+Login Untuk Reservasi
+
+</a>
+
+<?php endif; ?>
+
+</div>
+
+</div>
 
 </section>
+
+<footer class="footer">
+
+<div class="container">
+
+<p>
+
+&copy; <?= date("Y"); ?>
+
+Hotel Reservation.
+All Rights Reserved.
+
+</p>
+
+</div>
+
+</footer>
 
 </body>
 

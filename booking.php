@@ -9,18 +9,28 @@ if (!isset($_SESSION['id'])) {
 
 require_once "config/koneksi.php";
 
-if (!isset($_GET['room_id']) || !is_numeric($_GET['room_id'])) {
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: rooms.php");
     exit;
 }
 
-$roomId = (int) $_GET['room_id'];
+$roomId = (int) $_GET['id'];
 
-$stmt = mysqli_prepare($conn, "SELECT * FROM rooms WHERE id = ?");
-mysqli_stmt_bind_param($stmt, "i", $roomId);
+$stmt = mysqli_prepare(
+    $conn,
+    "SELECT * FROM rooms WHERE id = ?"
+);
+
+mysqli_stmt_bind_param(
+    $stmt,
+    "i",
+    $roomId
+);
+
 mysqli_stmt_execute($stmt);
 
 $result = mysqli_stmt_get_result($stmt);
+
 $room = mysqli_fetch_assoc($result);
 
 mysqli_stmt_close($stmt);
@@ -30,6 +40,7 @@ if (!$room) {
     exit;
 }
 
+$success = "";
 $error = "";
 
 if (isset($_POST['booking'])) {
@@ -39,9 +50,9 @@ if (isset($_POST['booking'])) {
     $checkIn = $_POST['check_in'];
     $checkOut = $_POST['check_out'];
 
-    if ($checkIn >= $checkOut) {
+    if ($checkOut <= $checkIn) {
 
-        $error = "Tanggal check-out harus setelah check-in.";
+        $error = "Tanggal check out harus setelah check in.";
 
     } else {
 
@@ -50,7 +61,15 @@ if (isset($_POST['booking'])) {
         $stmt = mysqli_prepare(
             $conn,
             "INSERT INTO bookings
-            (user_id, room_id, nama, no_hp, check_in, check_out, status)
+            (
+                user_id,
+                room_id,
+                nama,
+                no_hp,
+                check_in,
+                check_out,
+                status
+            )
             VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
 
@@ -66,12 +85,17 @@ if (isset($_POST['booking'])) {
             $status
         );
 
-        mysqli_stmt_execute($stmt);
+        if (mysqli_stmt_execute($stmt)) {
+
+            $success = "Reservasi berhasil dikirim. Silakan tunggu konfirmasi dari admin.";
+
+        } else {
+
+            $error = "Reservasi gagal dikirim.";
+
+        }
 
         mysqli_stmt_close($stmt);
-
-        header("Location: booking-success.php");
-        exit;
 
     }
 
@@ -80,6 +104,7 @@ if (isset($_POST['booking'])) {
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
@@ -88,7 +113,7 @@ if (isset($_POST['booking'])) {
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Reservasi Kamar</title>
+<title>Reservasi</title>
 
 <link rel="stylesheet" href="assets/css/style.css">
 
@@ -108,11 +133,23 @@ Hotel Reservation
 
 <div class="menu">
 
-<a href="index.php">Home</a>
+<a href="index.php">
 
-<a href="rooms.php">Kamar</a>
+Home
 
-<a href="logout.php">Logout</a>
+</a>
+
+<a href="rooms.php">
+
+Kamar
+
+</a>
+
+<a href="logout.php">
+
+Logout
+
+</a>
 
 </div>
 
@@ -124,77 +161,91 @@ Hotel Reservation
 
 <div class="container">
 
-<h2>Reservasi Kamar</h2>
+<div class="form-box">
 
-<br>
+<h2
+style="text-align:center;margin-bottom:30px;">
 
-<h3><?= htmlspecialchars($room['nama']); ?></h3>
+Reservasi Kamar
 
-<p>
+</h2>
 
-Rp <?= number_format($room['harga'],0,",","."); ?> / malam
+<p
+style="margin-bottom:25px;">
 
-</p>
+<strong>Kamar :</strong>
 
-<br>
-
-<?php if (!empty($error)) : ?>
-
-<p style="color:red;">
-
-<?= $error; ?>
+<?= htmlspecialchars($room['nama']); ?>
 
 </p>
 
-<br>
+<?php if(!empty($success)): ?>
+
+<p
+style="color:green;margin-bottom:20px;">
+
+<?= htmlspecialchars($success); ?>
+
+</p>
+
+<?php endif; ?>
+
+<?php if(!empty($error)): ?>
+
+<p
+style="color:red;margin-bottom:20px;">
+
+<?= htmlspecialchars($error); ?>
+
+</p>
 
 <?php endif; ?>
 
 <form method="POST">
 
-<label>Nama</label>
+<label>
 
-<br>
+Nama
+
+</label>
 
 <input
 type="text"
 name="nama"
 required>
 
-<br><br>
+<label>
 
-<label>Nomor HP</label>
+Nomor HP
 
-<br>
+</label>
 
 <input
 type="text"
 name="no_hp"
 required>
 
-<br><br>
+<label>
 
-<label>Check In</label>
+Check In
 
-<br>
+</label>
 
 <input
 type="date"
 name="check_in"
 required>
 
-<br><br>
+<label>
 
-<label>Check Out</label>
+Check Out
 
-<br>
+</label>
 
 <input
 type="date"
 name="check_out"
 required>
-
-<br><br>
 
 <button
 type="submit"
@@ -205,11 +256,38 @@ Reservasi Sekarang
 
 </button>
 
+<a
+href="room-detail.php?id=<?= $roomId; ?>"
+class="btn btn-danger">
+
+Kembali
+
+</a>
+
 </form>
 
 </div>
 
+</div>
+
 </section>
+
+<footer class="footer">
+
+<div class="container">
+
+<p>
+
+&copy; <?= date("Y"); ?>
+
+Hotel Reservation.
+All Rights Reserved.
+
+</p>
+
+</div>
+
+</footer>
 
 </body>
 

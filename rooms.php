@@ -2,30 +2,28 @@
 
 session_start();
 
-if (!isset($_SESSION['id'])) {
-    header("Location: login.php");
-    exit;
-}
-
 require_once "config/koneksi.php";
 
-$query = "SELECT * FROM rooms ORDER BY id DESC";
-$result = mysqli_query($conn, $query);
+$query = mysqli_query(
+    $conn,
+    "SELECT * FROM rooms ORDER BY id DESC"
+);
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Daftar Kamar</title>
+<title>Daftar Kamar</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css">
 
 </head>
 
@@ -33,108 +31,174 @@ $result = mysqli_query($conn, $query);
 
 <nav>
 
-    <div class="container">
+<div class="container">
 
-        <div class="logo">
+<div class="logo">
 
-            Hotel Reservation
+Hotel Reservation
 
-        </div>
+</div>
 
-        <div class="menu">
+<div class="menu">
 
-            <a href="index.php">Home</a>
+<a href="index.php">
 
-            <a href="rooms.php">Kamar</a>
+Home
 
-            <a href="logout.php">Logout</a>
+</a>
 
-        </div>
+<a href="rooms.php">
 
-    </div>
+Kamar
+
+</a>
+
+<?php if(isset($_SESSION['id'])): ?>
+
+<a href="logout.php">
+
+Logout
+
+</a>
+
+<?php else: ?>
+
+<a href="login.php">
+
+Login
+
+</a>
+
+<a href="register.php">
+
+Register
+
+</a>
+
+<?php endif; ?>
+
+</div>
+
+</div>
 
 </nav>
 
 <section class="section">
 
-    <div class="container">
+<div class="container">
 
-        <h2>Daftar Kamar</h2>
+<h2 class="section-title">
 
-        <div class="room-grid">
+Daftar Kamar
 
-            <?php if (mysqli_num_rows($result) > 0) : ?>
+</h2>
 
-                <?php while ($room = mysqli_fetch_assoc($result)) : ?>
+<div class="room-grid">
 
-                    <div class="card">
+<?php if(mysqli_num_rows($query) > 0): ?>
 
-                        <?php if (!empty($room['foto'])) : ?>
+<?php while($room = mysqli_fetch_assoc($query)): ?>
 
-                            <img
-                                src="uploads/<?= htmlspecialchars($room['foto']); ?>"
-                                alt="<?= htmlspecialchars($room['nama']); ?>">
+<div class="card">
 
-                        <?php else : ?>
+<?php if(!empty($room['foto'])): ?>
 
-                            <img
-                                src="assets/images/no-image.png"
-                                alt="No Image">
+<img
+src="uploads/<?= htmlspecialchars($room['foto']); ?>"
+alt="<?= htmlspecialchars($room['nama']); ?>">
 
-                        <?php endif; ?>
+<?php else: ?>
 
-                        <div class="card-body">
+<img
+src="assets/images/no-image.png"
+alt="No Image">
 
-                            <h3>
+<?php endif; ?>
 
-                                <?= htmlspecialchars($room['nama']); ?>
+<div class="card-body">
 
-                            </h3>
+<h3>
 
-                            <p>
+<?= htmlspecialchars($room['nama']); ?>
 
-                                Rp <?= number_format($room['harga'], 0, ',', '.'); ?> / malam
+</h3>
 
-                            </p>
+<p>
 
-                            <p>
+<strong>Harga</strong>
 
-                                Kapasitas :
-                                <?= $room['kapasitas']; ?> Orang
+</p>
 
-                            </p>
+<p>
 
-                            <br>
+Rp <?= number_format($room['harga'],0,",","."); ?>
 
-                            <a
-                                href="room-detail.php?id=<?= $room['id']; ?>"
-                                class="btn">
+/ malam
 
-                                Lihat Detail
+</p>
 
-                            </a>
+<p>
 
-                        </div>
+<strong>Kapasitas</strong>
 
-                    </div>
+</p>
 
-                <?php endwhile; ?>
+<p>
 
-            <?php else : ?>
+<?= $room['kapasitas']; ?>
 
-                <p>
+Orang
 
-                    Belum ada kamar tersedia.
+</p>
 
-                </p>
+<br>
 
-            <?php endif; ?>
+<a
+href="room-detail.php?id=<?= $room['id']; ?>"
+class="btn">
 
-        </div>
+Lihat Detail
 
-    </div>
+</a>
+
+</div>
+
+</div>
+
+<?php endwhile; ?>
+
+<?php else: ?>
+
+<p>
+
+Belum ada kamar tersedia.
+
+</p>
+
+<?php endif; ?>
+
+</div>
+
+</div>
 
 </section>
+
+<footer class="footer">
+
+<div class="container">
+
+<p>
+
+&copy; <?= date("Y"); ?>
+
+Hotel Reservation.
+All Rights Reserved.
+
+</p>
+
+</div>
+
+</footer>
 
 </body>
 

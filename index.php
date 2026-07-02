@@ -1,10 +1,14 @@
 <?php
+
 session_start();
 
-if(!isset($_SESSION['id'])){
-    header("Location: login.php");
-    exit;
-}
+require_once "config/koneksi.php";
+
+$query = mysqli_query(
+    $conn,
+    "SELECT * FROM rooms ORDER BY id DESC LIMIT 3"
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +17,8 @@ if(!isset($_SESSION['id'])){
 <head>
 
 <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Hotel Reservation</title>
 
@@ -34,18 +40,41 @@ Hotel Reservation
 
 <div class="menu">
 
-<a href="">Home</a>
-<a href="rooms.php">Kamar</a>
+<a href="index.php">
 
-<a href="">
-<?= $_SESSION['nama']; ?>
+Home
+
 </a>
+
+<a href="rooms.php">
+
+Kamar
+
+</a>
+
+<?php if(isset($_SESSION['id'])): ?>
 
 <a href="logout.php">
 
 Logout
 
 </a>
+
+<?php else: ?>
+
+<a href="login.php">
+
+Login
+
+</a>
+
+<a href="register.php">
+
+Register
+
+</a>
+
+<?php endif; ?>
 
 </div>
 
@@ -55,17 +84,24 @@ Logout
 
 <section class="hero">
 
-<div>
+<div class="container">
 
-<h1>Temukan Kamar Terbaik</h1>
+<h1>
+
+Temukan Kamar Hotel Impian Anda
+
+</h1>
 
 <p>
 
-Nikmati pengalaman menginap yang nyaman dengan harga terbaik.
+Nikmati pengalaman menginap yang nyaman dengan pilihan kamar terbaik,
+harga terjangkau, dan proses reservasi yang mudah.
 
 </p>
 
-<a href="rooms.php" class="btn">
+<a
+href="rooms.php"
+class="btn">
 
 Lihat Kamar
 
@@ -79,51 +115,61 @@ Lihat Kamar
 
 <div class="container">
 
-<h2>Kamar Unggulan</h2>
+<h2 class="section-title">
+
+Kamar Unggulan
+
+</h2>
 
 <div class="room-grid">
 
-<div class="card">
-
-<img src="https://media.dekoruma.com/article/2019/10/15154154/cnn.jpg?fit=300%2C195&ssl=1">
-
-<div class="card-body">
-
-<h3>Deluxe Room</h3>
-
-<p>Rp800.000 / malam</p>
-
-</div>
-
-</div>
+<?php while($room = mysqli_fetch_assoc($query)): ?>
 
 <div class="card">
 
-<img src="https://asset.kompas.com/crops/sM6GZYSRLehMdD9kPvH5cPBoI24=/600x400:5400x3600/1200x800/data/photo/2021/10/07/615f210ee5920.jpg">
+<img
+src="uploads/<?= htmlspecialchars($room['foto']); ?>"
+alt="<?= htmlspecialchars($room['nama']); ?>">
 
 <div class="card-body">
 
-<h3>Superior Room</h3>
+<h3>
 
-<p>Rp450.000 / malam</p>
+<?= htmlspecialchars($room['nama']); ?>
+
+</h3>
+
+<p>
+
+Rp <?= number_format($room['harga'],0,",","."); ?>
+
+/ malam
+
+</p>
+
+<p>
+
+Kapasitas
+
+<?= $room['kapasitas']; ?>
+
+Orang
+
+</p>
+
+<a
+href="room-detail.php?id=<?= $room['id']; ?>"
+class="btn">
+
+Lihat Detail
+
+</a>
 
 </div>
 
 </div>
 
-<div class="card">
-
-<img src="https://www.trimcastlehotel.com/wp-content/uploads/2023/08/image-8-1.jpg">
-
-<div class="card-body">
-
-<h3>Family Room</h3>
-
-<p>Rp550.000 / malam</p>
-
-</div>
-
-</div>
+<?php endwhile; ?>
 
 </div>
 
@@ -135,14 +181,34 @@ Lihat Kamar
 
 <div class="container">
 
-<h2>Tentang Hotel</h2>
+<div class="detail-content">
 
-<p style="text-align:center">
+<h2>
 
-Hotel Reservation menyediakan berbagai pilihan kamar yang nyaman,
-bersih, dan modern untuk kebutuhan perjalanan bisnis maupun liburan.
+Tentang Hotel
+
+</h2>
+
+<br>
+
+<p>
+
+Hotel Reservation merupakan sistem reservasi hotel sederhana yang
+memudahkan pelanggan melihat informasi kamar dan melakukan reservasi
+secara online tanpa proses yang rumit.
 
 </p>
+
+<br>
+
+<p>
+
+Kami menyediakan berbagai pilihan kamar dengan fasilitas terbaik untuk
+memberikan pengalaman menginap yang nyaman bagi setiap tamu.
+
+</p>
+
+</div>
 
 </div>
 
@@ -150,11 +216,18 @@ bersih, dan modern untuk kebutuhan perjalanan bisnis maupun liburan.
 
 <footer class="footer">
 
+<div class="container">
+
 <p>
 
-© 2026 Hotel Reservation
+&copy; <?= date("Y"); ?>
+
+Hotel Reservation.
+All Rights Reserved.
 
 </p>
+
+</div>
 
 </footer>
 
