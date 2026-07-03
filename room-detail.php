@@ -4,178 +4,174 @@ session_start();
 
 require_once "config/koneksi.php";
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+if(!isset($_GET['id']) || !is_numeric($_GET['id'])){
 
-    header("Location: rooms.php");
-    exit;
+header("Location: rooms.php");
+exit;
 
 }
 
-$id = (int) $_GET['id'];
+$id=(int)$_GET['id'];
 
-$stmt = mysqli_prepare(
-    $conn,
-    "SELECT * FROM rooms WHERE id = ?"
+$stmt=mysqli_prepare(
+$conn,
+"SELECT * FROM rooms WHERE id=?"
 );
 
 mysqli_stmt_bind_param(
-    $stmt,
-    "i",
-    $id
+$stmt,
+"i",
+$id
 );
 
 mysqli_stmt_execute($stmt);
 
-$result = mysqli_stmt_get_result($stmt);
+$result=mysqli_stmt_get_result($stmt);
 
-$room = mysqli_fetch_assoc($result);
+$room=mysqli_fetch_assoc($result);
 
 mysqli_stmt_close($stmt);
 
-if (!$room) {
+if(!$room){
 
-    header("Location: rooms.php");
-    exit;
+header("Location: rooms.php");
+exit;
 
 }
 
+include "includes/head.php";
 ?>
 
-<!DOCTYPE html>
+<link rel="stylesheet" href="assets/css/detail.css">
 
-<html lang="id">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title><?= htmlspecialchars($room['nama']); ?></title>
-
-<link rel="stylesheet" href="assets/css/style.css">
-
-</head>
-
-<body>
-
-<nav>
-
-<div class="container">
-
-<div class="logo">
-
-Hotel Reservation
-
-</div>
-
-<div class="menu">
-
-<a href="index.php">
-
-Home
-
-</a>
-
-<a href="rooms.php">
-
-Kamar
-
-</a>
-
-<?php if(isset($_SESSION['id'])): ?>
-
-<a href="logout.php">
-
-Logout
-
-</a>
-
-<?php else: ?>
-
-<a href="login.php">
-
-Login
-
-</a>
-
-<a href="register.php">
-
-Register
-
-</a>
-
-<?php endif; ?>
-
-</div>
-
-</div>
-
-</nav>
+<?php
+include "includes/header.php";
+?>
 
 <section class="section">
 
 <div class="container">
 
-<div class="detail-content">
+<div class="detail-wrapper">
+
+<div class="detail-gallery">
 
 <img
-src="uploads/<?= htmlspecialchars($room['foto']); ?>"
-class="detail-image"
-alt="<?= htmlspecialchars($room['nama']); ?>">
+src="uploads/<?= htmlspecialchars($room['foto']) ?>"
+alt="<?= htmlspecialchars($room['nama']) ?>">
 
-<h2>
+</div>
 
-<?= htmlspecialchars($room['nama']); ?>
+<div class="detail-content">
 
-</h2>
+<h1 class="detail-title">
 
-<br>
+<?= htmlspecialchars($room['nama']) ?>
 
-<p>
+</h1>
 
-<strong>Harga :</strong>
+<div class="detail-rating">
 
-Rp <?= number_format($room['harga'],0,",","."); ?>
+★★★★★ 4.9
+
+</div>
+
+<div class="detail-price">
+
+Rp <?= number_format($room['harga'],0,",",".") ?>
+
+<span>
 
 / malam
 
-</p>
+</span>
 
-<br>
+</div>
 
-<p>
+<div class="detail-info">
 
-<strong>Kapasitas :</strong>
+<div class="info-box">
 
-<?= $room['kapasitas']; ?>
+<i class="fa-solid fa-user-group"></i>
 
-Orang
+<?= $room['kapasitas'] ?> Orang
 
-</p>
+</div>
 
-<br>
+<div class="info-box">
 
-<p>
+<i class="fa-solid fa-bed"></i>
 
-<strong>Deskripsi</strong>
+Premium Room
 
-</p>
+</div>
 
-<br>
+</div>
 
-<p>
+<div class="detail-description">
 
-<?= nl2br(htmlspecialchars($room['deskripsi'])); ?>
+<?= nl2br(htmlspecialchars($room['deskripsi'])) ?>
 
-</p>
+</div>
 
-<br><br>
+<div class="detail-feature">
+
+<div>
+
+<i class="fa-solid fa-wifi"></i>
+
+Free WiFi
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-tv"></i>
+
+Smart TV
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-snowflake"></i>
+
+Air Conditioner
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-mug-hot"></i>
+
+Breakfast Included
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-bath"></i>
+
+Private Bathroom
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-square-parking"></i>
+
+Free Parking
+
+</div>
+
+</div>
+
+<div class="detail-action">
 
 <?php if(isset($_SESSION['id'])): ?>
 
 <a
-href="booking.php?id=<?= $room['id']; ?>"
+href="booking.php?id=<?= $room['id'] ?>"
 class="btn">
 
 Reservasi Sekarang
@@ -194,29 +190,24 @@ Login Untuk Reservasi
 
 <?php endif; ?>
 
+<a
+href="rooms.php"
+class="btn btn-danger">
+
+Kembali
+
+</a>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
 
 </section>
 
-<footer class="footer">
-
-<div class="container">
-
-<p>
-
-&copy; <?= date("Y"); ?>
-
-Hotel Reservation.
-All Rights Reserved.
-
-</p>
-
-</div>
-
-</footer>
-
-</body>
-
-</html>
+<?php
+include "includes/footer.php";
+?>

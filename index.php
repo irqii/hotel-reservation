@@ -9,228 +9,229 @@ $query = mysqli_query(
     "SELECT * FROM rooms ORDER BY id DESC LIMIT 3"
 );
 
+include "includes/head.php";
 ?>
 
-<!DOCTYPE html>
-<html lang="id">
+<link rel="stylesheet" href="assets/css/home.css">
 
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Hotel Reservation</title>
-
-<link rel="stylesheet" href="assets/css/style.css">
-
-</head>
-
-<body>
-
-<nav>
-
-<div class="container">
-
-<div class="logo">
-
-Hotel Reservation
-
-</div>
-
-<div class="menu">
-
-<a href="index.php">
-
-Home
-
-</a>
-
-<a href="rooms.php">
-
-Kamar
-
-</a>
-
-<?php if(isset($_SESSION['id'])): ?>
-
-<a href="logout.php">
-
-Logout
-
-</a>
-
-<?php else: ?>
-
-<a href="login.php">
-
-Login
-
-</a>
-
-<a href="register.php">
-
-Register
-
-</a>
-
-<?php endif; ?>
-
-</div>
-
-</div>
-
-</nav>
+<?php
+include "includes/header.php";
+?>
 
 <section class="hero">
 
-<div class="container">
+    <div class="container">
 
-<h1>
+        <div class="hero-content">
 
-Temukan Kamar Hotel Impian Anda
+            <p class="hero-subtitle">
 
-</h1>
+                WELCOME TO BLUEWAVE HOTEL
 
-<p>
+            </p>
 
-Nikmati pengalaman menginap yang nyaman dengan pilihan kamar terbaik,
-harga terjangkau, dan proses reservasi yang mudah.
+            <h1>
 
-</p>
+                Rasakan Pengalaman Menginap yang Berbeda
 
-<a
-href="rooms.php"
-class="btn">
+            </h1>
 
-Lihat Kamar
+            <p>
 
-</a>
+                Nikmati kamar modern, pelayanan terbaik, dan proses reservasi online
+                yang cepat serta mudah untuk menemani setiap perjalanan Anda.
 
-</div>
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="rooms.php" class="btn">
+
+                    Lihat Kamar
+
+                </a>
+
+                <a href="#about" class="btn-outline">
+
+                    Tentang Kami
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="section featured">
+
+    <div class="container">
+
+        <h2 class="section-title">
+
+            Kamar Unggulan
+
+        </h2>
+
+        <div class="room-grid">
+
+            <?php while($room = mysqli_fetch_assoc($query)): ?>
+
+                <div class="card">
+
+                    <img
+                        src="uploads/<?= htmlspecialchars($room['foto']); ?>"
+                        alt="<?= htmlspecialchars($room['nama']); ?>">
+
+                    <div class="card-body">
+
+                        <h3>
+
+                            <?= htmlspecialchars($room['nama']); ?>
+
+                        </h3>
+
+                        <div class="room-price">
+
+                            Rp <?= number_format($room['harga'],0,",","."); ?>
+
+                            <span style="font-size:15px;color:#64748b;">
+
+                                / malam
+
+                            </span>
+
+                        </div>
+
+                        <div class="room-info">
+
+                            <span>
+
+                                <i class="fa-solid fa-user-group"></i>
+
+                                <?= $room['kapasitas']; ?> Orang
+
+                            </span>
+
+                            <span>
+
+                                ★★★★★
+
+                            </span>
+
+                        </div>
+
+                        <a
+                            href="room-detail.php?id=<?= $room['id']; ?>"
+                            class="btn">
+
+                            Lihat Detail
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            <?php endwhile; ?>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section
+class="section"
+id="about">
+
+    <div class="container">
+
+        <div class="about">
+
+            <div>
+
+                <img
+                    src="assets/images/hotel.png"
+                    alt="BlueWave Hotel">
+
+            </div>
+
+            <div>
+
+                <h2>
+
+                    Tentang BlueWave Hotel
+
+                </h2>
+
+                <p>
+
+                    BlueWave Hotel menghadirkan pengalaman menginap yang nyaman dengan
+                    desain modern, fasilitas lengkap, dan pelayanan profesional untuk
+                    setiap tamu.
+
+                </p>
+
+                <p>
+
+                    Mulai dari perjalanan bisnis hingga liburan bersama keluarga,
+                    kami menyediakan berbagai pilihan kamar yang siap memenuhi
+                    kebutuhan Anda.
+
+                </p>
+
+                <a
+                    href="rooms.php"
+                    class="btn">
+
+                    Lihat Semua Kamar
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </section>
 
 <section class="section">
 
-<div class="container">
+    <div class="container">
 
-<h2 class="section-title">
+        <div class="cta">
 
-Kamar Unggulan
+            <h2>
 
-</h2>
+                Siap Menginap Bersama Kami?
 
-<div class="room-grid">
+            </h2>
 
-<?php while($room = mysqli_fetch_assoc($query)): ?>
+            <p>
 
-<div class="card">
+                Temukan kamar favorit Anda sekarang dan lakukan reservasi hanya
+                dalam beberapa langkah.
 
-<img
-src="uploads/<?= htmlspecialchars($room['foto']); ?>"
-alt="<?= htmlspecialchars($room['nama']); ?>">
+            </p>
 
-<div class="card-body">
+            <a
+                href="rooms.php"
+                class="btn">
 
-<h3>
+                Reservasi Sekarang
 
-<?= htmlspecialchars($room['nama']); ?>
+            </a>
 
-</h3>
+        </div>
 
-<p>
-
-Rp <?= number_format($room['harga'],0,",","."); ?>
-
-/ malam
-
-</p>
-
-<p>
-
-Kapasitas
-
-<?= $room['kapasitas']; ?>
-
-Orang
-
-</p>
-
-<a
-href="room-detail.php?id=<?= $room['id']; ?>"
-class="btn">
-
-Lihat Detail
-
-</a>
-
-</div>
-
-</div>
-
-<?php endwhile; ?>
-
-</div>
-
-</div>
+    </div>
 
 </section>
 
-<section class="section">
-
-<div class="container">
-
-<div class="detail-content">
-
-<h2>
-
-Tentang Hotel
-
-</h2>
-
-<br>
-
-<p>
-
-Hotel Reservation merupakan sistem reservasi hotel sederhana yang
-memudahkan pelanggan melihat informasi kamar dan melakukan reservasi
-secara online tanpa proses yang rumit.
-
-</p>
-
-<br>
-
-<p>
-
-Kami menyediakan berbagai pilihan kamar dengan fasilitas terbaik untuk
-memberikan pengalaman menginap yang nyaman bagi setiap tamu.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<footer class="footer">
-
-<div class="container">
-
-<p>
-
-&copy; <?= date("Y"); ?>
-
-Hotel Reservation.
-All Rights Reserved.
-
-</p>
-
-</div>
-
-</footer>
-
-</body>
-
-</html>
+<?php
+include "includes/footer.php";
+?>

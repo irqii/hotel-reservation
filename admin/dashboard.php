@@ -2,41 +2,44 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] != "admin") {
+
     header("Location: ../login.php");
     exit;
+
 }
 
 require_once "../config/koneksi.php";
 
-$totalRooms = mysqli_num_rows(
-    mysqli_query($conn, "SELECT id FROM rooms")
+$totalUser = mysqli_fetch_assoc(
+    mysqli_query(
+        $conn,
+        "SELECT COUNT(*) AS total FROM users WHERE role='user'"
+    )
 );
 
-$totalBookings = mysqli_num_rows(
-    mysqli_query($conn, "SELECT id FROM bookings")
+$totalRoom = mysqli_fetch_assoc(
+    mysqli_query(
+        $conn,
+        "SELECT COUNT(*) AS total FROM rooms"
+    )
 );
 
-$totalPending = mysqli_num_rows(
-    mysqli_query($conn, "SELECT id FROM bookings WHERE status='Pending'")
+$totalBooking = mysqli_fetch_assoc(
+    mysqli_query(
+        $conn,
+        "SELECT COUNT(*) AS total FROM bookings"
+    )
 );
 
-$totalAccepted = mysqli_num_rows(
-    mysqli_query($conn, "SELECT id FROM bookings WHERE status='Diterima'")
-);
-
-$totalRejected = mysqli_num_rows(
-    mysqli_query($conn, "SELECT id FROM bookings WHERE status='Ditolak'")
-);
-
-$latestBookings = mysqli_query(
+$bookingTerbaru = mysqli_query(
     $conn,
     "SELECT
         bookings.*,
-        rooms.nama AS room_name
+        rooms.nama AS kamar
     FROM bookings
-    INNER JOIN rooms
-        ON bookings.room_id = rooms.id
+    JOIN rooms
+    ON bookings.room_id=rooms.id
     ORDER BY bookings.id DESC
     LIMIT 5"
 );
@@ -44,235 +47,212 @@ $latestBookings = mysqli_query(
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Dashboard Admin</title>
+<title>Dashboard Admin</title>
 
-    <link rel="stylesheet" href="../assets/css/admin.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link rel="stylesheet" href="../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<div class="wrapper">
+<?php include "sidebar.php"; ?>
 
-    <div class="sidebar">
+<div class="main">
 
-        <h2>Hotel Admin</h2>
+<div class="topbar">
 
-        <ul>
+<div>
 
-            <li>
+<h1 class="page-title">
 
-                <a href="dashboard.php">
+Dashboard
 
-                    Dashboard
+</h1>
 
-                </a>
+<p>
 
-            </li>
+Selamat datang,
 
-            <li>
+<b><?= htmlspecialchars($_SESSION['nama']) ?></b>
 
-                <a href="rooms/index.php">
+</p>
 
-                    Kelola Kamar
+</div>
 
-                </a>
+<div class="admin-profile">
 
-            </li>
+<i class="fa-solid fa-user-shield"></i>
 
-            <li>
+Administrator
 
-                <a href="bookings/index.php">
+</div>
 
-                    Kelola Reservasi
+</div>
 
-                </a>
+<div class="cards">
 
-            </li>
+<div class="card">
 
-            <li>
+<h3>
 
-                <a href="../logout.php">
+<i class="fa-solid fa-users"></i>
 
-                    Logout
+Total User
 
-                </a>
+</h3>
 
-            </li>
+<p>
 
-        </ul>
+<?= $totalUser['total']; ?>
 
-    </div>
+</p>
 
-    <div class="content">
+</div>
 
-        <h1 class="page-title">
+<div class="card">
 
-            Dashboard
+<h3>
 
-        </h1>
+<i class="fa-solid fa-bed"></i>
 
-        <div class="stats">
+Total Kamar
 
-            <div class="card">
+</h3>
 
-                <h4>Total Kamar</h4>
+<p>
 
-                <h2><?= $totalRooms; ?></h2>
+<?= $totalRoom['total']; ?>
 
-            </div>
+</p>
 
-            <div class="card">
+</div>
 
-                <h4>Total Reservasi</h4>
+<div class="card">
 
-                <h2><?= $totalBookings; ?></h2>
+<h3>
 
-            </div>
+<i class="fa-solid fa-calendar-check"></i>
 
-            <div class="card">
+Total Reservasi
 
-                <h4>Pending</h4>
+</h3>
 
-                <h2><?= $totalPending; ?></h2>
+<p>
 
-            </div>
+<?= $totalBooking['total']; ?>
 
-            <div class="card">
+</p>
 
-                <h4>Diterima</h4>
+</div>
 
-                <h2><?= $totalAccepted; ?></h2>
+</div>
 
-            </div>
+<div class="table-wrapper">
 
-            <div class="card">
+<h2 style="margin-bottom:20px;">
 
-                <h4>Ditolak</h4>
+Reservasi Terbaru
 
-                <h2><?= $totalRejected; ?></h2>
+</h2>
 
-            </div>
+<table>
 
-        </div>
+<tr>
 
-        <div class="card">
+<th>Nama</th>
 
-            <div class="header-action">
+<th>No HP</th>
 
-                <h3>Reservasi Terbaru</h3>
+<th>Kamar</th>
 
-                <a
-                    href="bookings/index.php"
-                    class="btn">
+<th>Check In</th>
 
-                    Lihat Semua
+<th>Status</th>
 
-                </a>
+</tr>
 
-            </div>
+<?php while($booking=mysqli_fetch_assoc($bookingTerbaru)): ?>
 
-            <table>
+<tr>
 
-                <tr>
+<td>
 
-                    <th>Nama</th>
+<?= htmlspecialchars($booking['nama']) ?>
 
-                    <th>Kamar</th>
+</td>
 
-                    <th>Check In</th>
+<td>
 
-                    <th>Check Out</th>
+<?= htmlspecialchars($booking['no_hp']) ?>
 
-                    <th>Status</th>
+</td>
 
-                </tr>
+<td>
 
-                <?php if (mysqli_num_rows($latestBookings) > 0): ?>
+<?= htmlspecialchars($booking['kamar']) ?>
 
-                    <?php while ($booking = mysqli_fetch_assoc($latestBookings)): ?>
+</td>
 
-                        <tr>
+<td>
 
-                            <td>
+<?= htmlspecialchars($booking['check_in']) ?>
 
-                                <?= htmlspecialchars($booking['nama']); ?>
+</td>
 
-                            </td>
+<td>
 
-                            <td>
+<?php if($booking['status']=="Pending"): ?>
 
-                                <?= htmlspecialchars($booking['room_name']); ?>
+<span class="badge pending">
 
-                            </td>
+Pending
 
-                            <td>
+</span>
 
-                                <?= htmlspecialchars($booking['check_in']); ?>
+<?php elseif($booking['status']=="Diterima"): ?>
 
-                            </td>
+<span class="badge success">
 
-                            <td>
+Diterima
 
-                                <?= htmlspecialchars($booking['check_out']); ?>
+</span>
 
-                            </td>
+<?php else: ?>
 
-                            <td>
+<span class="badge danger">
 
-                                <?php
+Ditolak
 
-                                $class = "";
+</span>
 
-                                if ($booking['status'] == "Pending") {
-                                    $class = "pending";
-                                } elseif ($booking['status'] == "Diterima") {
-                                    $class = "accept";
-                                } else {
-                                    $class = "reject";
-                                }
+<?php endif; ?>
 
-                                ?>
+</td>
 
-                                <span class="badge <?= $class; ?>">
+</tr>
 
-                                    <?= htmlspecialchars($booking['status']); ?>
+<?php endwhile; ?>
 
-                                </span>
+</table>
 
-                            </td>
-
-                        </tr>
-
-                    <?php endwhile; ?>
-
-                <?php else: ?>
-
-                    <tr>
-
-                        <td colspan="5">
-
-                            Belum ada reservasi.
-
-                        </td>
-
-                    </tr>
-
-                <?php endif; ?>
-
-            </table>
-
-        </div>
-
-    </div>
+</div>
 
 </div>
 

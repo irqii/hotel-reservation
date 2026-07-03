@@ -2,220 +2,159 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] != "admin") {
+
     header("Location: ../../login.php");
     exit;
+
 }
 
 require_once "../../config/koneksi.php";
 
-$query = "SELECT * FROM rooms ORDER BY id DESC";
-$result = mysqli_query($conn, $query);
+$query = mysqli_query(
+    $conn,
+    "SELECT * FROM rooms ORDER BY id DESC"
+);
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Kelola Kamar</title>
+<title>Kelola Kamar</title>
 
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link rel="stylesheet" href="../../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<div class="wrapper">
+<?php include "../sidebar.php"; ?>
 
-    <div class="sidebar">
+<div class="main">
 
-        <h2>Hotel Admin</h2>
+<div class="topbar">
 
-        <ul>
+<div>
 
-            <li>
+<h1 class="page-title">
 
-                <a href="../dashboard.php">
+Kelola Kamar
 
-                    Dashboard
+</h1>
 
-                </a>
+<p>
 
-            </li>
+Manajemen seluruh data kamar BlueWave Hotel.
 
-            <li>
+</p>
 
-                <a href="index.php">
+</div>
 
-                    Kelola Kamar
+<a
+href="create.php"
+class="btn">
 
-                </a>
+<i class="fa-solid fa-plus"></i>
 
-            </li>
+Tambah Kamar
 
-            <li>
+</a>
 
-                <a href="../bookings/index.php">
+</div>
 
-                    Kelola Reservasi
+<div class="table-wrapper">
 
-                </a>
+<table>
 
-            </li>
+<tr>
 
-            <li>
+<th>ID</th>
 
-                <a href="../../logout.php">
+<th>Foto</th>
 
-                    Logout
+<th>Nama</th>
 
-                </a>
+<th>Harga</th>
 
-            </li>
+<th>Kapasitas</th>
 
-        </ul>
+<th>Aksi</th>
 
-    </div>
+</tr>
 
-    <div class="content">
+<?php while($room = mysqli_fetch_assoc($query)): ?>
 
-        <div class="header-action">
+<tr>
 
-            <h1>Kelola Kamar</h1>
+<td><?= $room['id']; ?></td>
 
-            <a
-                href="create.php"
-                class="btn">
+<td>
 
-                + Tambah Kamar
+<img
+src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
+width="120"
+style="border-radius:10px;">
 
-            </a>
+</td>
 
-        </div>
+<td><?= htmlspecialchars($room['nama']); ?></td>
 
-        <table>
+<td>
 
-            <thead>
+Rp <?= number_format($room['harga'],0,",","."); ?>
 
-                <tr>
+</td>
 
-                    <th>No</th>
+<td>
 
-                    <th>Foto</th>
+<?= $room['kapasitas']; ?> Orang
 
-                    <th>Nama</th>
+</td>
 
-                    <th>Harga</th>
+<td>
 
-                    <th>Kapasitas</th>
+<a
+href="edit.php?id=<?= $room['id']; ?>"
+class="btn btn-warning">
 
-                    <th>Aksi</th>
+Edit
 
-                </tr>
+</a>
 
-            </thead>
+<a
+href="delete.php?id=<?= $room['id']; ?>"
+class="btn btn-danger"
+onclick="return confirm('Yakin ingin menghapus kamar ini?')">
 
-            <tbody>
+Hapus
 
-                <?php if (mysqli_num_rows($result) > 0): ?>
+</a>
 
-                    <?php $no = 1; ?>
+</td>
 
-                    <?php while ($room = mysqli_fetch_assoc($result)): ?>
+</tr>
 
-                        <tr>
+<?php endwhile; ?>
 
-                            <td>
+</table>
 
-                                <?= $no++; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?php if (!empty($room['foto'])): ?>
-
-                                    <img
-                                        src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
-                                        alt="<?= htmlspecialchars($room['nama']); ?>"
-                                        class="room-image">
-
-                                <?php else: ?>
-
-                                    -
-
-                                <?php endif; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= htmlspecialchars($room['nama']); ?>
-
-                            </td>
-
-                            <td>
-
-                                Rp <?= number_format($room['harga'], 0, ",", "."); ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= $room['kapasitas']; ?> Orang
-
-                            </td>
-
-                            <td>
-
-                                <a
-                                    href="edit.php?id=<?= $room['id']; ?>"
-                                    class="btn">
-
-                                    Edit
-
-                                </a>
-
-                                <a
-                                    href="delete.php?id=<?= $room['id']; ?>"
-                                    class="btn btn-danger"
-                                    onclick="return confirm('Yakin ingin menghapus kamar ini?')">
-
-                                    Hapus
-
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endwhile; ?>
-
-                <?php else: ?>
-
-                    <tr>
-
-                        <td colspan="6">
-
-                            Belum ada data kamar.
-
-                        </td>
-
-                    </tr>
-
-                <?php endif; ?>
-
-            </tbody>
-
-        </table>
-
-    </div>
+</div>
 
 </div>
 

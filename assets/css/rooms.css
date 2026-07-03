@@ -1,0 +1,185 @@
+/* ===========================
+   Header
+=========================== */
+
+.room-header{
+
+    text-align:center;
+
+    margin-bottom:60px;
+
+}
+
+.room-header h1{
+
+    font-size:42px;
+
+    color:#0f172a;
+
+    margin-bottom:15px;
+
+}
+
+.room-header p{
+
+    max-width:700px;
+
+    margin:auto;
+
+    color:#64748b;
+
+    line-height:1.8;
+
+}
+
+/* ===========================
+   Room Grid
+=========================== */
+
+.room-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+
+    gap:30px;
+
+}
+
+/* ===========================
+   Card
+=========================== */
+
+.room-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+.room-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+/* ===========================
+   Image
+=========================== */
+
+.room-card img{
+
+    width:100%;
+
+    height:230px;
+
+    object-fit:cover;
+
+}
+
+/* ===========================
+   Body
+=========================== */
+
+.room-content{
+
+    padding:22px;
+
+}
+
+.room-content h2{
+
+    font-size:24px;
+
+    color:#0f172a;
+
+    margin-bottom:12px;
+
+}
+
+/* ===========================
+   Price
+=========================== */
+
+.room-price{
+
+    font-size:26px;
+
+    color:#2563eb;
+
+    font-weight:700;
+
+    margin-bottom:15px;
+
+}
+
+.room-price span{
+
+    font-size:15px;
+
+    color:#64748b;
+
+    font-weight:400;
+
+}
+
+/* ===========================
+   Info
+=========================== */
+
+.room-info{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+    color:#64748b;
+
+}
+
+.room-info span{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+/* ===========================
+   Button
+=========================== */
+
+.room-card .btn{
+
+    width:100%;
+
+    text-align:center;
+
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media(max-width:768px){
+
+.room-header h1{
+
+font-size:34px;
+
+}
+
+}

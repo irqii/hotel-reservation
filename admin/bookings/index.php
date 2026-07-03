@@ -2,62 +2,30 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] != "admin") {
+
     header("Location: ../../login.php");
     exit;
+
 }
 
 require_once "../../config/koneksi.php";
 
-if (isset($_POST['update_status'])) {
-
-    $bookingId = (int) $_POST['booking_id'];
-    $status = $_POST['status'];
-
-    $allowedStatus = ["Pending", "Diterima", "Ditolak"];
-
-    if (in_array($status, $allowedStatus)) {
-
-        $stmt = mysqli_prepare(
-            $conn,
-            "UPDATE bookings
-             SET status = ?
-             WHERE id = ?"
-        );
-
-        mysqli_stmt_bind_param(
-            $stmt,
-            "si",
-            $status,
-            $bookingId
-        );
-
-        mysqli_stmt_execute($stmt);
-
-        mysqli_stmt_close($stmt);
-
-    }
-
-    header("Location: index.php");
-    exit;
-
-}
-
-$query = "
-SELECT
-    bookings.*,
-    rooms.nama AS room_name
-FROM bookings
-INNER JOIN rooms
-ON bookings.room_id = rooms.id
-ORDER BY bookings.id DESC
-";
-
-$result = mysqli_query($conn, $query);
+$query = mysqli_query(
+    $conn,
+    "SELECT
+        bookings.*,
+        rooms.nama AS kamar
+    FROM bookings
+    JOIN rooms
+    ON bookings.room_id = rooms.id
+    ORDER BY bookings.id DESC"
+);
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
@@ -68,79 +36,51 @@ $result = mysqli_query($conn, $query);
 
 <title>Kelola Reservasi</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 <link rel="stylesheet" href="../../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<div class="wrapper">
+<?php include "../sidebar.php"; ?>
 
-<div class="sidebar">
+<div class="main">
 
-<h2>Hotel Admin</h2>
+<div class="topbar">
 
-<ul>
+<div>
 
-<li>
-
-<a href="../dashboard.php">
-
-Dashboard
-
-</a>
-
-</li>
-
-<li>
-
-<a href="../rooms/index.php">
-
-Kelola Kamar
-
-</a>
-
-</li>
-
-<li>
-
-<a href="index.php">
+<h1 class="page-title">
 
 Kelola Reservasi
 
-</a>
+</h1>
 
-</li>
+<p>
 
-<li>
+Seluruh data reservasi pelanggan BlueWave Hotel.
 
-<a href="../../logout.php">
-
-Logout
-
-</a>
-
-</li>
-
-</ul>
+</p>
 
 </div>
 
-<div class="content">
-
-<div class="header-action">
-
-<h1>Kelola Reservasi</h1>
-
 </div>
+
+<div class="table-wrapper">
 
 <table>
 
-<thead>
-
 <tr>
 
-<th>No</th>
+<th>ID</th>
 
 <th>Nama</th>
 
@@ -158,153 +98,80 @@ Logout
 
 </tr>
 
-</thead>
-
-<tbody>
-
-<?php if (mysqli_num_rows($result) > 0): ?>
-
-<?php $no = 1; ?>
-
-<?php while ($booking = mysqli_fetch_assoc($result)): ?>
+<?php while($booking = mysqli_fetch_assoc($query)): ?>
 
 <tr>
 
+<td><?= $booking['id']; ?></td>
+
+<td><?= htmlspecialchars($booking['nama']); ?></td>
+
+<td><?= htmlspecialchars($booking['no_hp']); ?></td>
+
+<td><?= htmlspecialchars($booking['kamar']); ?></td>
+
+<td><?= htmlspecialchars($booking['check_in']); ?></td>
+
+<td><?= htmlspecialchars($booking['check_out']); ?></td>
+
 <td>
 
-<?= $no++; ?>
+<?php if($booking['status']=="Pending"): ?>
+
+<span class="badge pending">Pending</span>
+
+<?php elseif($booking['status']=="Diterima"): ?>
+
+<span class="badge success">Diterima</span>
+
+<?php else: ?>
+
+<span class="badge danger">Ditolak</span>
+
+<?php endif; ?>
 
 </td>
 
 <td>
 
-<?= htmlspecialchars($booking['nama']); ?>
+<a
+href="./status.php?id=<?= $booking['id']; ?>&status=Diterima"
+class="btn btn-success">
 
-</td>
+Terima
 
-<td>
+</a>
 
-<?= htmlspecialchars($booking['no_hp']); ?>
-
-</td>
-
-<td>
-
-<?= htmlspecialchars($booking['room_name']); ?>
-
-</td>
-
-<td>
-
-<?= htmlspecialchars($booking['check_in']); ?>
-
-</td>
-
-<td>
-
-<?= htmlspecialchars($booking['check_out']); ?>
-
-</td>
-
-<td>
-
-<?php
-
-$class = "";
-
-if ($booking['status'] == "Pending") {
-
-    $class = "pending";
-
-} elseif ($booking['status'] == "Diterima") {
-
-    $class = "accept";
-
-} else {
-
-    $class = "reject";
-
-}
-
-?>
-
-<span class="badge <?= $class; ?>">
-
-<?= htmlspecialchars($booking['status']); ?>
-
-</span>
-
-</td>
-
-<td>
-
-<form method="POST">
-
-<input
-type="hidden"
-name="booking_id"
-value="<?= $booking['id']; ?>">
-
-<select name="status">
-
-<option
-value="Pending"
-<?= $booking['status'] == "Pending" ? "selected" : ""; ?>>
+<a
+href="./status.php?id=<?= $booking['id']; ?>&status=Pending"
+class="btn btn-warning">
 
 Pending
 
-</option>
+</a>
 
-<option
-value="Diterima"
-<?= $booking['status'] == "Diterima" ? "selected" : ""; ?>>
+<a
+href="./status.php?id=<?= $booking['id']; ?>&status=Ditolak"
+class="btn btn-danger">
 
-Diterima
+Tolak
 
-</option>
+</a>
 
-<option
-value="Ditolak"
-<?= $booking['status'] == "Ditolak" ? "selected" : ""; ?>>
+<a
+href="./delete.php?id=<?= $booking['id']; ?>"
+class="btn btn-danger"
+onclick="return confirm('Hapus reservasi ini?')">
 
-Ditolak
+Hapus
 
-</option>
-
-</select>
-
-<button
-type="submit"
-name="update_status"
-class="btn">
-
-Update
-
-</button>
-
-</form>
+</a>
 
 </td>
 
 </tr>
 
 <?php endwhile; ?>
-
-<?php else: ?>
-
-<tr>
-
-<td colspan="8">
-
-Belum ada reservasi.
-
-</td>
-
-</tr>
-
-<?php endif; ?>
-
-</tbody>
 
 </table>
 

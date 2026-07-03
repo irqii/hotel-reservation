@@ -4,200 +4,129 @@ session_start();
 
 require_once "config/koneksi.php";
 
-if (isset($_SESSION['id'])) {
+if(isset($_SESSION['id'])){
 
-    if ($_SESSION['role'] == "admin") {
-
-        header("Location: admin/dashboard.php");
-
-    } else {
-
-        header("Location: index.php");
-
-    }
-
-    exit;
+header("Location: index.php");
+exit;
 
 }
 
-$error = "";
-$success = "";
+$error="";
 
-if (isset($_POST['register'])) {
+if(isset($_POST['register'])){
 
-    $nama = trim($_POST['nama']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+$nama=trim($_POST['nama']);
+$email=trim($_POST['email']);
+$password=password_hash($_POST['password'],PASSWORD_DEFAULT);
 
-    $cek = mysqli_prepare(
-        $conn,
-        "SELECT id FROM users WHERE email = ?"
-    );
+$cek=mysqli_prepare(
+$conn,
+"SELECT id FROM users WHERE email=?"
+);
 
-    mysqli_stmt_bind_param(
-        $cek,
-        "s",
-        $email
-    );
+mysqli_stmt_bind_param(
+$cek,
+"s",
+$email
+);
 
-    mysqli_stmt_execute($cek);
+mysqli_stmt_execute($cek);
 
-    mysqli_stmt_store_result($cek);
+mysqli_stmt_store_result($cek);
 
-    if (mysqli_stmt_num_rows($cek) > 0) {
+if(mysqli_stmt_num_rows($cek)>0){
 
-        $error = "Email sudah digunakan.";
+$error="Email sudah digunakan.";
 
-    } else {
+}else{
 
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+$role="user";
 
-        $role = "user";
+$stmt=mysqli_prepare(
+$conn,
+"INSERT INTO users(nama,email,password,role)
+VALUES(?,?,?,?)"
+);
 
-        $stmt = mysqli_prepare(
-            $conn,
-            "INSERT INTO users
-            (nama, email, password, role)
-            VALUES (?, ?, ?, ?)"
-        );
+mysqli_stmt_bind_param(
+$stmt,
+"ssss",
+$nama,
+$email,
+$password,
+$role
+);
 
-        mysqli_stmt_bind_param(
-            $stmt,
-            "ssss",
-            $nama,
-            $email,
-            $passwordHash,
-            $role
-        );
+mysqli_stmt_execute($stmt);
 
-        if (mysqli_stmt_execute($stmt)) {
+header("Location: login.php");
 
-            header("Location: login.php");
-            exit;
-
-        } else {
-
-            $error = "Registrasi gagal.";
-
-        }
-
-        mysqli_stmt_close($stmt);
-
-    }
-
-    mysqli_stmt_close($cek);
+exit;
 
 }
 
+}
+
+include "includes/head.php";
 ?>
 
-<!DOCTYPE html>
+<link rel="stylesheet" href="assets/css/auth.css">
 
-<html lang="id">
+<section class="auth-section">
 
-<head>
+<div class="auth-container">
 
-<meta charset="UTF-8">
+<div class="auth-banner">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<h1>
 
-<title>Register</title>
+BlueWave Hotel
 
-<link rel="stylesheet" href="assets/css/style.css">
+</h1>
 
-</head>
+<p>
 
-<body>
+Bergabunglah sekarang dan nikmati kemudahan reservasi kamar secara online.
 
-<nav>
-
-<div class="container">
-
-<div class="logo">
-
-Hotel Reservation
+</p>
 
 </div>
 
-<div class="menu">
+<div class="auth-form">
 
-<a href="index.php">
-
-Home
-
-</a>
-
-<a href="rooms.php">
-
-Kamar
-
-</a>
-
-<a href="login.php">
-
-Login
-
-</a>
-
-</div>
-
-</div>
-
-</nav>
-
-<section class="section">
-
-<div class="container">
-
-<div class="form-box">
-
-<h2
-style="text-align:center;margin-bottom:30px;">
+<h2>
 
 Register
 
 </h2>
 
-<?php if (!empty($error)): ?>
+<?php if($error): ?>
 
-<p
-style="color:red;margin-bottom:20px;">
+<div class="error-box">
 
-<?= htmlspecialchars($error); ?>
+<?= htmlspecialchars($error) ?>
 
-</p>
+</div>
 
 <?php endif; ?>
 
 <form method="POST">
 
-<label>
-
-Nama
-
-</label>
+<label>Nama</label>
 
 <input
 type="text"
 name="nama"
 required>
 
-<label>
-
-Email
-
-</label>
+<label>Email</label>
 
 <input
 type="email"
 name="email"
 required>
 
-<label>
-
-Password
-
-</label>
+<label>Password</label>
 
 <input
 type="password"
@@ -209,15 +138,13 @@ type="submit"
 name="register"
 class="btn">
 
-Daftar
+Register
 
 </button>
 
 </form>
 
-<br>
-
-<p style="text-align:center;">
+<div class="auth-footer">
 
 Sudah punya akun?
 
@@ -227,25 +154,13 @@ Login
 
 </a>
 
-</p>
+</div>
 
 </div>
 
 </div>
 
 </section>
-
-<footer class="footer">
-
-<div class="container">
-
-&copy; <?= date("Y"); ?>
-
-Hotel Reservation
-
-</div>
-
-</footer>
 
 </body>
 

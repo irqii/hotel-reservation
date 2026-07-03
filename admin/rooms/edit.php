@@ -2,118 +2,125 @@
 
 session_start();
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['id']) || $_SESSION['role'] != "admin") {
+
     header("Location: ../../login.php");
     exit;
+
 }
 
 require_once "../../config/koneksi.php";
-require_once "../../helpers/upload.php";
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: index.php");
+if(!isset($_GET['id']) || !is_numeric($_GET['id'])){
+
+    header("Location:index.php");
     exit;
+
 }
 
-$id = (int) $_GET['id'];
+$id=(int)$_GET['id'];
 
-$stmt = mysqli_prepare(
+$stmt=mysqli_prepare(
     $conn,
-    "SELECT * FROM rooms WHERE id = ?"
+    "SELECT * FROM rooms WHERE id=?"
 );
 
-mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_bind_param(
+    $stmt,
+    "i",
+    $id
+);
+
 mysqli_stmt_execute($stmt);
 
-$result = mysqli_stmt_get_result($stmt);
-$room = mysqli_fetch_assoc($result);
+$result=mysqli_stmt_get_result($stmt);
+
+$room=mysqli_fetch_assoc($result);
 
 mysqli_stmt_close($stmt);
 
-if (!$room) {
-    header("Location: index.php");
+if(!$room){
+
+    header("Location:index.php");
     exit;
+
 }
 
-$error = "";
+if(isset($_POST['submit'])){
 
-if (isset($_POST['update'])) {
+    $nama=trim($_POST['nama']);
+    $harga=(int)$_POST['harga'];
+    $kapasitas=(int)$_POST['kapasitas'];
+    $deskripsi=trim($_POST['deskripsi']);
 
-    $nama = trim($_POST['nama']);
-    $harga = trim($_POST['harga']);
-    $kapasitas = trim($_POST['kapasitas']);
-    $deskripsi = trim($_POST['deskripsi']);
+    $foto=$room['foto'];
 
-    $foto = $room['foto'];
+    if(!empty($_FILES['foto']['name'])){
 
-    if (!empty($_FILES['foto']['name'])) {
+        if(file_exists("../../uploads/".$foto)){
 
-        $upload = uploadImage("foto");
-
-        if (!$upload["status"]) {
-
-            $error = $upload["message"];
-
-        } else {
-
-            if (
-                !empty($room['foto']) &&
-                file_exists("../../uploads/" . $room['foto'])
-            ) {
-                unlink("../../uploads/" . $room['foto']);
-            }
-
-            $foto = $upload["file_name"];
+            unlink("../../uploads/".$foto);
 
         }
 
-    }
+        $foto=time()."-".$_FILES['foto']['name'];
 
-    if (empty($error)) {
+        move_uploaded_file(
 
-        $stmt = mysqli_prepare(
-            $conn,
-            "UPDATE rooms
-            SET
-                nama = ?,
-                harga = ?,
-                kapasitas = ?,
-                foto = ?,
-                deskripsi = ?
-            WHERE id = ?"
+            $_FILES['foto']['tmp_name'],
+
+            "../../uploads/".$foto
+
         );
 
-        mysqli_stmt_bind_param(
-            $stmt,
-            "siissi",
-            $nama,
-            $harga,
-            $kapasitas,
-            $foto,
-            $deskripsi,
-            $id
-        );
-
-        if (mysqli_stmt_execute($stmt)) {
-
-            header("Location: index.php");
-            exit;
-
-        } else {
-
-            $error = "Gagal memperbarui data.";
-
-        }
-
-        mysqli_stmt_close($stmt);
-
     }
+
+    $stmt=mysqli_prepare(
+
+        $conn,
+
+        "UPDATE rooms
+        SET
+        nama=?,
+        harga=?,
+        kapasitas=?,
+        foto=?,
+        deskripsi=?
+        WHERE id=?"
+
+    );
+
+    mysqli_stmt_bind_param(
+
+        $stmt,
+
+        "siissi",
+
+        $nama,
+
+        $harga,
+
+        $kapasitas,
+
+        $foto,
+
+        $deskripsi,
+
+        $id
+
+    );
+
+    mysqli_stmt_execute($stmt);
+
+    header("Location:index.php");
+    exit;
 
 }
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
@@ -124,65 +131,27 @@ if (isset($_POST['update'])) {
 
 <title>Edit Kamar</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 <link rel="stylesheet" href="../../assets/css/admin.css">
 
 </head>
 
 <body>
 
-<div class="wrapper">
+<?php include "../sidebar.php"; ?>
 
-<div class="sidebar">
+<div class="main">
 
-<h2>Hotel Admin</h2>
+<div class="topbar">
 
-<ul>
-
-<li>
-
-<a href="../dashboard.php">
-
-Dashboard
-
-</a>
-
-</li>
-
-<li>
-
-<a href="index.php">
-
-Kelola Kamar
-
-</a>
-
-</li>
-
-<li>
-
-<a href="../bookings/index.php">
-
-Kelola Reservasi
-
-</a>
-
-</li>
-
-<li>
-
-<a href="../../logout.php">
-
-Logout
-
-</a>
-
-</li>
-
-</ul>
-
-</div>
-
-<div class="content">
+<div>
 
 <h1 class="page-title">
 
@@ -190,101 +159,76 @@ Edit Kamar
 
 </h1>
 
-<div class="form-card">
+<p>
 
-<?php if (!empty($error)): ?>
-
-<p style="color:red;margin-bottom:20px;">
-
-<?= htmlspecialchars($error); ?>
+Perbarui informasi kamar BlueWave Hotel.
 
 </p>
 
-<?php endif; ?>
+</div>
+
+</div>
+
+<div class="table-wrapper">
 
 <form
 method="POST"
 enctype="multipart/form-data">
 
-<label>
-
-Nama Kamar
-
-</label>
+<label>Nama Kamar</label>
 
 <input
 type="text"
 name="nama"
-value="<?= htmlspecialchars($room['nama']); ?>"
+value="<?= htmlspecialchars($room['nama']) ?>"
 required>
 
-<label>
-
-Harga
-
-</label>
+<label>Harga per Malam</label>
 
 <input
 type="number"
 name="harga"
-value="<?= $room['harga']; ?>"
-min="0"
+value="<?= $room['harga'] ?>"
 required>
 
-<label>
-
-Kapasitas
-
-</label>
+<label>Kapasitas</label>
 
 <input
 type="number"
 name="kapasitas"
-value="<?= $room['kapasitas']; ?>"
-min="1"
+value="<?= $room['kapasitas'] ?>"
 required>
 
-<label>
+<label>Foto Saat Ini</label>
 
-Foto Saat Ini
-
-</label>
-
-<br><br>
+<p style="margin-bottom:20px;">
 
 <img
-src="../../uploads/<?= htmlspecialchars($room['foto']); ?>"
-class="room-image"
-alt="<?= htmlspecialchars($room['nama']); ?>">
+src="../../uploads/<?= htmlspecialchars($room['foto']) ?>"
+alt="<?= htmlspecialchars($room['nama']) ?>"
+style="width:220px;border-radius:12px;">
 
-<br><br>
+</p>
 
-<label>
-
-Ganti Foto
-
-</label>
+<label>Ganti Foto (Opsional)</label>
 
 <input
 type="file"
 name="foto"
-accept=".jpg,.jpeg,.png,.webp">
+accept="image/*">
 
-<label>
-
-Deskripsi
-
-</label>
+<label>Deskripsi</label>
 
 <textarea
 name="deskripsi"
-rows="6"
-required><?= htmlspecialchars($room['deskripsi']); ?></textarea>
+required><?= htmlspecialchars($room['deskripsi']) ?></textarea>
 
 <button
 type="submit"
-name="update"
+name="submit"
 class="btn">
+
+<i class="fa-solid fa-floppy-disk"></i>
 
 Update
 
@@ -294,13 +238,13 @@ Update
 href="index.php"
 class="btn btn-danger">
 
-Batal
+<i class="fa-solid fa-arrow-left"></i>
+
+Kembali
 
 </a>
 
 </form>
-
-</div>
 
 </div>
 

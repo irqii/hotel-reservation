@@ -4,157 +4,137 @@ session_start();
 
 require_once "config/koneksi.php";
 
-$query = mysqli_query(
-    $conn,
-    "SELECT * FROM rooms ORDER BY id DESC"
+$query=mysqli_query(
+$conn,
+"SELECT * FROM rooms ORDER BY id DESC"
 );
 
+include "includes/head.php";
 ?>
 
-<!DOCTYPE html>
+<link rel="stylesheet" href="assets/css/rooms.css">
 
-<html lang="id">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Daftar Kamar</title>
-
-<link rel="stylesheet" href="assets/css/style.css">
-
-</head>
-
-<body>
-
-<nav>
-
-<div class="container">
-
-<div class="logo">
-
-Hotel Reservation
-
-</div>
-
-<div class="menu">
-
-<a href="index.php">
-
-Home
-
-</a>
-
-<a href="rooms.php">
-
-Kamar
-
-</a>
-
-<?php if(isset($_SESSION['id'])): ?>
-
-<a href="logout.php">
-
-Logout
-
-</a>
-
-<?php else: ?>
-
-<a href="login.php">
-
-Login
-
-</a>
-
-<a href="register.php">
-
-Register
-
-</a>
-
-<?php endif; ?>
-
-</div>
-
-</div>
-
-</nav>
+<?php
+include "includes/header.php";
+?>
 
 <section class="section">
 
 <div class="container">
 
-<h2 class="section-title">
+<div class="room-header">
 
-Daftar Kamar
+<h1>
 
-</h2>
+Pilihan Kamar
+
+</h1>
+
+<p>
+
+Temukan kamar terbaik dengan fasilitas modern dan pelayanan terbaik dari BlueWave Hotel.
+
+</p>
+
+</div>
 
 <div class="room-grid">
 
-<?php if(mysqli_num_rows($query) > 0): ?>
+<?php while($room=mysqli_fetch_assoc($query)): ?>
 
-<?php while($room = mysqli_fetch_assoc($query)): ?>
+<div class="room-card">
 
-<div class="card">
-
-<?php if(!empty($room['foto'])): ?>
+<div class="room-image">
 
 <img
-src="uploads/<?= htmlspecialchars($room['foto']); ?>"
-alt="<?= htmlspecialchars($room['nama']); ?>">
+src="uploads/<?= htmlspecialchars($room['foto'])?>">
 
-<?php else: ?>
+<div class="room-badge">
 
-<img
-src="assets/images/no-image.png"
-alt="No Image">
+Best Choice
 
-<?php endif; ?>
+</div>
 
-<div class="card-body">
+</div>
 
-<h3>
+<div class="room-content">
 
-<?= htmlspecialchars($room['nama']); ?>
+<h2 class="room-title">
 
-</h3>
+<?= htmlspecialchars($room['nama'])?>
 
-<p>
+</h2>
 
-<strong>Harga</strong>
+<div class="room-price">
 
-</p>
+Rp <?= number_format($room['harga'],0,",",".")?>
 
-<p>
-
-Rp <?= number_format($room['harga'],0,",","."); ?>
+<span style="font-size:15px;color:#64748b;">
 
 / malam
 
-</p>
+</span>
 
-<p>
+</div>
 
-<strong>Kapasitas</strong>
+<div class="room-info">
 
-</p>
+<div>
 
-<p>
+<i class="fa-solid fa-user-group"></i>
 
-<?= $room['kapasitas']; ?>
+<?= $room['kapasitas']?> Orang
 
-Orang
+</div>
 
-</p>
+<div class="rating">
 
-<br>
+★★★★★
+
+</div>
+
+</div>
+
+<div class="room-feature">
+
+<div>
+
+<i class="fa-solid fa-wifi"></i>
+
+WiFi
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-tv"></i>
+
+Smart TV
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-snowflake"></i>
+
+AC
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-mug-hot"></i>
+
+Breakfast
+
+</div>
+
+</div>
+
+<div class="room-action">
 
 <a
-href="room-detail.php?id=<?= $room['id']; ?>"
+href="room-detail.php?id=<?= $room['id']?>"
 class="btn">
 
 Lihat Detail
@@ -165,17 +145,9 @@ Lihat Detail
 
 </div>
 
+</div>
+
 <?php endwhile; ?>
-
-<?php else: ?>
-
-<p>
-
-Belum ada kamar tersedia.
-
-</p>
-
-<?php endif; ?>
 
 </div>
 
@@ -183,23 +155,6 @@ Belum ada kamar tersedia.
 
 </section>
 
-<footer class="footer">
-
-<div class="container">
-
-<p>
-
-&copy; <?= date("Y"); ?>
-
-Hotel Reservation.
-All Rights Reserved.
-
-</p>
-
-</div>
-
-</footer>
-
-</body>
-
-</html>
+<?php
+include "includes/footer.php";
+?>

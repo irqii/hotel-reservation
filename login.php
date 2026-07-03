@@ -4,13 +4,13 @@ session_start();
 
 require_once "config/koneksi.php";
 
-if (isset($_SESSION['id'])) {
+if(isset($_SESSION['id'])){
 
-    if ($_SESSION['role'] == "admin") {
+    if($_SESSION['role']=="admin"){
 
         header("Location: admin/dashboard.php");
 
-    } else {
+    }else{
 
         header("Location: index.php");
 
@@ -20,160 +20,125 @@ if (isset($_SESSION['id'])) {
 
 }
 
-$error = "";
+$error="";
 
-if (isset($_POST['login'])) {
+if(isset($_POST['login'])){
 
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+$email=trim($_POST['email']);
+$password=$_POST['password'];
 
-    $stmt = mysqli_prepare(
-        $conn,
-        "SELECT * FROM users WHERE email = ?"
-    );
+$stmt=mysqli_prepare(
+$conn,
+"SELECT * FROM users WHERE email=?"
+);
 
-    mysqli_stmt_bind_param(
-        $stmt,
-        "s",
-        $email
-    );
+mysqli_stmt_bind_param(
+$stmt,
+"s",
+$email
+);
 
-    mysqli_stmt_execute($stmt);
+mysqli_stmt_execute($stmt);
 
-    $result = mysqli_stmt_get_result($stmt);
+$result=mysqli_stmt_get_result($stmt);
 
-    if (mysqli_num_rows($result) == 1) {
+if(mysqli_num_rows($result)==1){
 
-        $user = mysqli_fetch_assoc($result);
+$user=mysqli_fetch_assoc($result);
 
-        if (password_verify($password, $user['password'])) {
+if(password_verify($password,$user['password'])){
 
-            $_SESSION['id'] = $user['id'];
-            $_SESSION['nama'] = $user['nama'];
-            $_SESSION['role'] = $user['role'];
+$_SESSION['id']=$user['id'];
+$_SESSION['nama']=$user['nama'];
+$_SESSION['role']=$user['role'];
 
-            if ($user['role'] == "admin") {
+if($user['role']=="admin"){
 
-                header("Location: admin/dashboard.php");
+header("Location: admin/dashboard.php");
 
-            } else {
+}else{
 
-                header("Location: index.php");
-
-            }
-
-            exit;
-
-        }
-
-    }
-
-    $error = "Email atau password salah.";
-
-    mysqli_stmt_close($stmt);
+header("Location: index.php");
 
 }
 
+exit;
+
+}
+
+}
+
+$error="Email atau password salah.";
+
+}
+
+include "includes/head.php";
 ?>
 
-<!DOCTYPE html>
+<link rel="stylesheet" href="assets/css/auth.css">
 
-<html lang="id">
+<section class="auth-section">
 
-<head>
+<div class="auth-container">
 
-<meta charset="UTF-8">
+<div class="auth-banner">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="brand">
 
-<title>Login</title>
+<img
+src="assets/images/logo.png"
+alt="BlueWave Hotel">
 
-<link rel="stylesheet" href="assets/css/style.css">
+<h1>
 
-</head>
+BlueWave Hotel
 
-<body>
-
-<nav>
-
-<div class="container">
-
-<div class="logo">
-
-Hotel Reservation
+</h1>
 
 </div>
 
-<div class="menu">
+<p>
 
-<a href="index.php">
+Nikmati pengalaman menginap yang nyaman dengan proses reservasi online yang cepat, mudah, dan aman.
 
-Home
-
-</a>
-
-<a href="rooms.php">
-
-Kamar
-
-</a>
-
-<a href="register.php">
-
-Register
-
-</a>
+</p>
 
 </div>
 
-</div>
+<div class="auth-form">
 
-</nav>
-
-<section class="section">
-
-<div class="container">
-
-<div class="form-box">
-
-<h2 style="text-align:center;margin-bottom:30px;">
+<h2>
 
 Login
 
 </h2>
 
-<?php if(!empty($error)): ?>
+<?php if($error): ?>
 
-<p style="color:red;margin-bottom:20px;">
+<div class="error-box">
 
-<?= htmlspecialchars($error); ?>
+<?= htmlspecialchars($error) ?>
 
-</p>
+</div>
 
 <?php endif; ?>
 
 <form method="POST">
 
-<label>
-
-Email
-
-</label>
+<label>Email</label>
 
 <input
 type="email"
 name="email"
+placeholder="Masukkan email"
 required>
 
-<label>
-
-Password
-
-</label>
+<label>Password</label>
 
 <input
 type="password"
 name="password"
+placeholder="Masukkan password"
 required>
 
 <button
@@ -187,9 +152,7 @@ Login
 
 </form>
 
-<br>
-
-<p style="text-align:center;">
+<div class="auth-footer">
 
 Belum punya akun?
 
@@ -199,23 +162,13 @@ Daftar
 
 </a>
 
-</p>
+</div>
 
 </div>
 
 </div>
 
 </section>
-
-<footer class="footer">
-
-<div class="container">
-
-&copy; <?= date("Y"); ?> Hotel Reservation
-
-</div>
-
-</footer>
 
 </body>
 

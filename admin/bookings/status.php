@@ -13,7 +13,8 @@ require_once "../../config/koneksi.php";
 
 if(
     !isset($_GET['id']) ||
-    !is_numeric($_GET['id'])
+    !is_numeric($_GET['id']) ||
+    !isset($_GET['status'])
 ){
 
     header("Location:index.php");
@@ -23,55 +24,29 @@ if(
 
 $id=(int)$_GET['id'];
 
-$stmt=mysqli_prepare(
+$status=$_GET['status'];
 
-    $conn,
+$statusValid=[
 
-    "SELECT foto
-    FROM rooms
-    WHERE id=?"
+    "Pending",
+    "Diterima",
+    "Ditolak"
 
-);
+];
 
-mysqli_stmt_bind_param(
-
-    $stmt,
-
-    "i",
-
-    $id
-
-);
-
-mysqli_stmt_execute($stmt);
-
-$result=mysqli_stmt_get_result($stmt);
-
-$room=mysqli_fetch_assoc($result);
-
-mysqli_stmt_close($stmt);
-
-if(!$room){
+if(!in_array($status,$statusValid)){
 
     header("Location:index.php");
     exit;
 
 }
 
-if(
-    !empty($room['foto']) &&
-    file_exists("../../uploads/".$room['foto'])
-){
-
-    unlink("../../uploads/".$room['foto']);
-
-}
-
 $stmt=mysqli_prepare(
 
     $conn,
 
-    "DELETE FROM rooms
+    "UPDATE bookings
+    SET status=?
     WHERE id=?"
 
 );
@@ -80,7 +55,9 @@ mysqli_stmt_bind_param(
 
     $stmt,
 
-    "i",
+    "si",
+
+    $status,
 
     $id
 
