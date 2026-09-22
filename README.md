@@ -95,7 +95,6 @@ http://hotel-reservation.test
 
 ## Screenshot
 
-Tambahkan screenshot website di sini.
 
 ---
 
